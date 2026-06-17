@@ -24,20 +24,20 @@ const INITIAL_FORM = {
 };
 
 const inputClass =
-  "w-full rounded-xl border border-[#dbe0e8] bg-white px-4 py-3.5 text-[#071739] outline-none transition placeholder:text-[#8a94a7] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10";
+  "w-full rounded-[8px] border border-[#dbe0e8] bg-white px-4 py-3 text-sm font-medium text-[#071739] outline-none transition placeholder:text-[#8a94a7] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10";
 
 const compactInputClass =
-  "w-full rounded-xl border border-[#dbe0e8] bg-white px-4 py-3 text-[#071739] outline-none transition placeholder:text-[#8a94a7] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10";
+  "w-full rounded-[8px] border border-[#dbe0e8] bg-white px-4 py-2.5 text-sm font-medium text-[#071739] outline-none transition placeholder:text-[#8a94a7] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10";
 
 const panelClass =
-  "rounded-[18px] border border-[#ece5dc] bg-white/95 shadow-[0_18px_55px_rgba(7,23,57,0.09)]";
+  "rounded-[12px] border border-[#ece5dc] bg-white/95 shadow-[0_16px_42px_rgba(7,23,57,0.08)]";
 
 const SectionTitle = ({ icon, title }) => (
-  <div className="mb-7 flex items-center gap-4">
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#fff0e9]">
-      <img src={icon} alt="" className="h-10 w-10 object-cover" />
+  <div className="mb-6 flex items-center gap-3">
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-[#fff0e9]">
+      <img src={icon} alt="" className="h-9 w-9 object-cover" />
     </span>
-    <h3 className="text-lg font-extrabold text-[#071739]">{title}</h3>
+    <h3 className="text-base font-extrabold text-[#071739]">{title}</h3>
   </div>
 );
 
@@ -259,33 +259,36 @@ const AddRecipeForm = () => {
   };
 
   return (
-    <div className="-m-6 min-h-screen overflow-hidden bg-[#fffaf5] px-6 pb-12 pt-8 text-[#071739] lg:px-12">
-      <div className="pointer-events-none absolute right-4 top-[78px] hidden h-[230px] w-[560px] overflow-hidden lg:block">
+    <div className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-[#fffaf5] px-6 pb-12 pt-8 text-[#071739] sm:px-8 lg:px-10">
+      <div className="pointer-events-none absolute right-0 top-0 hidden h-[210px] w-[500px] overflow-hidden xl:block">
         <img
           src={addRecipeDetail}
           alt=""
-          className="absolute -right-14 -top-40 w-[620px] max-w-none object-contain"
+          className="absolute -right-10 -top-[136px] w-[540px] max-w-none object-contain"
         />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1440px]">
-        <div className="mb-7">
-          <h2 className="text-5xl font-extrabold leading-tight text-[#071739]">
+      <div className="relative z-10 mx-auto max-w-[1360px]">
+        <div className="mb-7 max-w-[720px]">
+          <h2 className="text-[40px] font-extrabold leading-tight text-[#071739] sm:text-[44px]">
             Add New Recipe
           </h2>
-          <p className="mt-3 text-lg font-semibold text-[#4a5568]">
+          <p className="mt-2 text-base font-semibold text-[#4a5568] sm:text-lg">
             Share your healthy creation with the community and inspire others to
             eat better.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-5 xl:grid-cols-[1.05fr_0.82fr_0.48fr]">
-          <section className={`${panelClass} p-6 lg:p-7`}>
+        <form
+          onSubmit={handleSubmit}
+          className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.84fr)_286px]"
+        >
+          <section className={`${panelClass} p-6`}>
             <SectionTitle icon={addRecipeIcon1} title="Basic Information" />
 
-            <div className="space-y-6">
+            <div className="space-y-5">
               <label className="block">
-                <span className="mb-3 block text-sm font-extrabold text-[#071739]">
+                <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
                   Recipe Title *
                 </span>
                 <input
@@ -300,7 +303,7 @@ const AddRecipeForm = () => {
               </label>
 
               <label className="block">
-                <span className="mb-3 block text-sm font-extrabold text-[#071739]">
+                <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
                   Description *
                 </span>
                 <textarea
@@ -308,13 +311,13 @@ const AddRecipeForm = () => {
                   placeholder="Describe your recipe, key ingredients, benefits, and cooking tips..."
                   value={form.description}
                   onChange={handleChange}
-                  className={`${inputClass} min-h-[170px] resize-y`}
+                  className={`${inputClass} min-h-[158px] resize-y`}
                   required
                 />
               </label>
 
               <label className="block">
-                <span className="mb-3 block text-sm font-extrabold text-[#071739]">
+                <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
                   Author
                 </span>
                 <input
@@ -329,7 +332,7 @@ const AddRecipeForm = () => {
 
               <div className="grid gap-5 md:grid-cols-3">
                 <label className="block">
-                  <span className="mb-3 block text-sm font-extrabold text-[#071739]">
+                  <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
                     Cook Time
                   </span>
                   <input
@@ -344,7 +347,7 @@ const AddRecipeForm = () => {
                 </label>
 
                 <label className="block">
-                  <span className="mb-3 block text-sm font-extrabold text-[#071739]">
+                  <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
                     Servings
                   </span>
                   <input
@@ -359,7 +362,7 @@ const AddRecipeForm = () => {
                 </label>
 
                 <label className="block">
-                  <span className="mb-3 block text-sm font-extrabold text-[#071739]">
+                  <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
                     Difficulty
                   </span>
                   <select
@@ -377,7 +380,7 @@ const AddRecipeForm = () => {
 
               <div className="grid gap-5 md:grid-cols-2">
                 <label className="block">
-                  <span className="mb-3 block text-sm font-extrabold text-[#071739]">
+                  <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
                     Category
                   </span>
                   <input
@@ -391,7 +394,7 @@ const AddRecipeForm = () => {
                 </label>
 
                 <label className="block">
-                  <span className="mb-3 block text-sm font-extrabold text-[#071739]">
+                  <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
                     Tags
                   </span>
                   <input
@@ -407,14 +410,14 @@ const AddRecipeForm = () => {
             </div>
           </section>
 
-          <section className={`${panelClass} p-6 lg:p-7`}>
+          <section className={`${panelClass} p-6`}>
             <SectionTitle icon={addRecipeIcon2} title="Ingredients" />
 
             <div className="space-y-3">
               {form.ingredients.map((ingredient, index) => (
                 <div
                   key={`ingredient-${index}`}
-                  className="grid gap-3 sm:grid-cols-[1fr_120px_auto]"
+                  className="grid gap-3 sm:grid-cols-[1fr_110px_auto]"
                 >
                   <input
                     type="text"
@@ -437,7 +440,7 @@ const AddRecipeForm = () => {
                   <button
                     type="button"
                     onClick={() => removeIngredient(index)}
-                    className="h-12 rounded-xl border border-red-100 px-4 font-extrabold text-red-600 transition hover:bg-red-50"
+                    className="h-11 rounded-[8px] border border-red-100 px-3 font-extrabold text-red-600 transition hover:bg-red-50"
                   >
                     X
                   </button>
@@ -448,12 +451,12 @@ const AddRecipeForm = () => {
             <button
               type="button"
               onClick={addIngredient}
-              className="mt-4 flex h-12 w-full items-center justify-center rounded-xl border border-dashed border-[#cfd5df] bg-white text-base font-extrabold text-[#4f8b16] transition hover:border-[#4f8b16] hover:bg-[#f6fbef]"
+              className="mt-4 flex h-11 w-full items-center justify-center rounded-[8px] border border-dashed border-[#cfd5df] bg-white text-base font-extrabold text-[#4f8b16] transition hover:border-[#4f8b16] hover:bg-[#f6fbef]"
             >
               + Add Ingredient
             </button>
 
-            <div className="mt-9">
+            <div className="mt-8">
               <SectionTitle icon={addRecipeIcon3} title="Cooking Steps" />
               <div className="space-y-3">
                 {form.steps.map((step, index) => (
@@ -471,7 +474,7 @@ const AddRecipeForm = () => {
                     <button
                       type="button"
                       onClick={() => removeStep(index)}
-                      className="h-12 rounded-xl border border-red-100 px-4 font-extrabold text-red-600 transition hover:bg-red-50"
+                      className="h-11 rounded-[8px] border border-red-100 px-3 font-extrabold text-red-600 transition hover:bg-red-50"
                     >
                       X
                     </button>
@@ -482,15 +485,15 @@ const AddRecipeForm = () => {
               <button
                 type="button"
                 onClick={addStep}
-                className="mt-4 flex h-12 w-full items-center justify-center rounded-xl border border-dashed border-[#cfd5df] bg-white text-base font-extrabold text-[#4f8b16] transition hover:border-[#4f8b16] hover:bg-[#f6fbef]"
+                className="mt-4 flex h-11 w-full items-center justify-center rounded-[8px] border border-dashed border-[#cfd5df] bg-white text-base font-extrabold text-[#4f8b16] transition hover:border-[#4f8b16] hover:bg-[#f6fbef]"
               >
                 + Add Step
               </button>
             </div>
 
-            <div className="mt-9">
+            <div className="mt-8">
               <SectionTitle icon={addRecipeIcon4} title="Additional Details" />
-              <div className="rounded-2xl bg-[#f8fbf2] p-5">
+              <div className="rounded-[10px] bg-[#f8fbf2] p-4">
                 <p className="text-sm font-bold text-[#071739]">
                   Public Recipe
                 </p>
@@ -501,11 +504,11 @@ const AddRecipeForm = () => {
               </div>
             </div>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="mt-7 grid gap-4 sm:grid-cols-2">
               <button
                 type="submit"
                 disabled={loading}
-                className="h-14 rounded-xl bg-[#ed3317] text-base font-extrabold text-white shadow-[0_14px_28px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-12 rounded-[8px] bg-[#ed3317] text-base font-extrabold text-white shadow-[0_12px_26px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Creating..." : "Create Recipe"}
               </button>
@@ -513,7 +516,7 @@ const AddRecipeForm = () => {
               <button
                 type="button"
                 onClick={() => filesInputRef.current?.click()}
-                className="h-14 rounded-xl border border-[#dbe0e8] bg-white text-base font-extrabold text-[#071739] transition hover:bg-[#f8fafc]"
+                className="h-12 rounded-[8px] border border-[#dbe0e8] bg-white text-base font-extrabold text-[#071739] transition hover:bg-[#f8fafc]"
               >
                 Upload Gallery
               </button>
@@ -547,29 +550,29 @@ const AddRecipeForm = () => {
                 className="hidden"
               />
 
-              <div className="rounded-2xl border border-dashed border-[#cfd5df] bg-[#fbfcfe] p-4">
+              <div className="rounded-[12px] border border-dashed border-[#cfd5df] bg-[#fbfcfe] p-4">
                 {imagePreview ? (
                   <div className="space-y-4">
                     <img
                       src={imagePreview}
                       alt="Recipe preview"
-                      className="h-56 w-full rounded-xl border border-[#ece5dc] object-cover"
+                      className="h-52 w-full rounded-[10px] border border-[#ece5dc] object-cover"
                     />
                     <button
                       type="button"
                       onClick={removeImage}
-                      className="w-full rounded-xl border border-red-100 px-4 py-3 font-extrabold text-red-600 transition hover:bg-red-50"
+                      className="w-full rounded-[8px] border border-red-100 px-4 py-3 font-extrabold text-red-600 transition hover:bg-red-50"
                     >
                       Remove Image
                     </button>
                   </div>
                 ) : (
-                  <div className="flex min-h-[260px] flex-col items-center justify-center text-center">
-                    <div className="mb-5 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-[#eef1f5]">
+                  <div className="flex min-h-[286px] flex-col items-center justify-center text-center">
+                    <div className="mb-5 flex h-14 w-14 items-center justify-center overflow-hidden rounded-[12px] bg-[#eef1f5]">
                       <img
                         src={addRecipeIcon5}
                         alt=""
-                        className="h-16 w-16 object-cover opacity-70"
+                        className="h-14 w-14 object-cover opacity-70"
                       />
                     </div>
                     <p className="text-base font-extrabold text-[#071739]">
@@ -581,7 +584,7 @@ const AddRecipeForm = () => {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="mt-8 rounded-xl border border-[#ed3317] px-7 py-3 font-extrabold text-[#ed3317] transition hover:bg-[#fff3ef]"
+                      className="mt-8 rounded-[8px] border border-[#ed3317] px-7 py-3 font-extrabold text-[#ed3317] transition hover:bg-[#fff3ef]"
                     >
                       Upload Photo
                     </button>
@@ -609,7 +612,7 @@ const AddRecipeForm = () => {
                         key={`${src.slice(0, 20)}-${index}`}
                         src={src}
                         alt={`Recipe preview ${index + 1}`}
-                        className="h-20 w-full rounded-xl border border-[#ece5dc] object-cover"
+                        className="h-20 w-full rounded-[10px] border border-[#ece5dc] object-cover"
                       />
                     ))}
                   </div>
@@ -617,16 +620,20 @@ const AddRecipeForm = () => {
               )}
             </section>
 
-            <section className="rounded-[18px] border border-[#e5efd6] bg-[#f7fbef] p-5 shadow-[0_16px_38px_rgba(79,139,22,0.10)]">
+            <section className="rounded-[12px] border border-[#e5efd6] bg-[#f7fbef] p-5 shadow-[0_16px_38px_rgba(79,139,22,0.10)]">
               <div className="mb-5 flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white">
-                  <img src={addRecipeIcon3} alt="" className="h-10 w-10 object-cover" />
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-[10px] bg-white">
+                  <img
+                    src={addRecipeIcon3}
+                    alt=""
+                    className="h-9 w-9 object-cover"
+                  />
                 </span>
-                <h3 className="text-lg font-extrabold text-[#315f08]">
+                <h3 className="text-base font-extrabold text-[#315f08]">
                   Tips for a Great Recipe
                 </h3>
               </div>
-              <ul className="space-y-4 text-sm font-semibold text-[#315f08]">
+              <ul className="space-y-3.5 text-sm font-semibold text-[#315f08]">
                 <li>Use fresh, whole ingredients</li>
                 <li>Include accurate measurements</li>
                 <li>Add clear cooking instructions</li>

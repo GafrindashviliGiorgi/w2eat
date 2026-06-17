@@ -1,0 +1,240 @@
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     cookieAuth:
+ *       type: apiKey
+ *       in: cookie
+ *       name: token
+ *
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: 65f1a2b3c4d5e6f789012345
+ *         username:
+ *           type: string
+ *           example: mindia
+ *         email:
+ *           type: string
+ *           example: test@test.com
+ *         profileImg:
+ *           type: string
+ *           example: https://cdn-icons-png.flaticon.com/512/149/149071.png
+ *
+ *     RegisterRequest:
+ *       type: object
+ *       required:
+ *         - username
+ *         - email
+ *         - password
+ *       properties:
+ *         username:
+ *           type: string
+ *           example: mindia
+ *         email:
+ *           type: string
+ *           example: test@test.com
+ *         password:
+ *           type: string
+ *           example: 123456
+ *
+ *     LoginRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           example: test@test.com
+ *         password:
+ *           type: string
+ *           example: 123456
+ */
+
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register new user
+ *     tags: [Auth]
+ *     description: Creates a new user and sets httpOnly JWT cookie
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RegisterRequest'
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: User already exists
+ *       500:
+ *         description: Server error
+ */
+router.post("/register", register);
+const register = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }],
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    const user = await User.create({
+      username,
+      email,
+      password,
+    });
+
+    const token = generateToken(user._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: ms(process.env.JWT_EXPIRES_IN),
+    });
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImg: user.profileImg,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+now i want react-front-end functional on, on submit to send request,
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { registerSchema } from "../validation/registerSchema";
+
+const RegisterForm = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const onSubmit = async (data) => {
+    console.log("FORM DATA:", data);
+
+    try {
+      // await registerUser(data)
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6"
+      >
+        <h2 className="text-2xl font-semibold text-center text-gray-800">
+          Create Account
+        </h2>
+
+        {/* Username */}
+        <div>
+          <input
+            type="text"
+            placeholder="Username"
+            {...register("username")}
+            className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+          {errors.username && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.username.message}
+            </p>
+          )}
+        </div>
+
+        {/* Email */}
+        <div>
+          <input
+            type="email"
+            placeholder="Email"
+            {...register("email")}
+            className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          )}
+        </div>
+
+        {/* Password */}
+        <div>
+          <input
+            type="password"
+            placeholder="Password"
+            {...register("password")}
+            className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        {/* Confirm Password */}
+        <div>
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            {...register("confirmPassword")}
+            className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.confirmPassword.message}
+            </p>
+          )}
+        </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-blue-600 text-white py-2 rounded-xl font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? "Loading..." : "Register"}
+        </button>
+
+        <p className="text-center text-sm text-gray-500">
+          Already have an account?{" "}
+          <span className="text-blue-600 cursor-pointer hover:underline">
+            Login
+          </span>
+        </p>
+      </form>
+    </div>
+  );
+};
+
+export default RegisterForm;

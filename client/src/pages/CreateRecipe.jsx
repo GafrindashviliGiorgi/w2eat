@@ -1,9 +1,9 @@
-import CreateRecipeForm from "../features/recipes/components/CreateRecipeForm";
+import AddRecipeForm from "../features/recipes/components/AddRecipeForm";
 
 const CreateRecipe = () => {
   return (
     <div className="p-6">
-      <CreateRecipeForm />
+      <AddRecipeForm />
     </div>
   );
 };

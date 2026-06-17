@@ -69,7 +69,7 @@ const LoginForm = () => {
                 <img
                   src={leaf}
                   alt=""
-                  className="ml-2 inline-block h-11 w-11 object-contain align-middle sm:h-12 sm:w-12"
+                  className="ml-2 inline-block h-11 w-11 scale-[2.2] object-cover align-middle sm:h-12 sm:w-12"
                 />
               </span>
             </h1>
@@ -106,7 +106,7 @@ const LoginForm = () => {
           <img
             src={signinSignupDetail}
             alt=""
-            className="pointer-events-none absolute -bottom-12 left-[46%] z-0 hidden w-[620px] max-w-none -translate-x-1/4 lg:block xl:left-[52%] xl:w-[680px]"
+            className="pointer-events-none absolute -bottom-48 left-[90%] z-0 hidden w-[620px] max-w-none -translate-x-1/4 lg:block xl:left-[94%] xl:w-[680px]"
           />
         </section>
 
@@ -186,7 +186,7 @@ const LoginForm = () => {
             </p>
           </form>
 
-          <p className="text-center text-sm text-[#596174]">
+          <p className="relative z-20 rounded-full bg-[#fffaf4]/90 px-4 py-2 text-center text-sm text-[#596174] shadow-sm">
             Your data is safe with us.{" "}
             <span className="font-semibold text-[#4f8b16]">
               We never share your information.

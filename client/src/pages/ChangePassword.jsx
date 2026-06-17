@@ -164,31 +164,31 @@ const ChangePassword = () => {
 
   return (
     <section className="min-h-[calc(100vh-72px)] bg-[#fbfaf8] px-4 py-10 text-slate-950 sm:px-6 lg:px-8 lg:py-14">
-      <div className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-lg border border-slate-100 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.09)] lg:grid-cols-[0.38fr_0.62fr]">
-        <aside className="flex min-h-[360px] flex-col items-center justify-center bg-[#fff8f4] px-8 py-10 text-center lg:min-h-[610px]">
+      <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-lg border border-slate-100 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.09)] lg:grid-cols-[0.38fr_0.62fr]">
+        <aside className="flex min-h-[420px] flex-col items-center justify-center bg-[#fff8f4] px-8 py-12 text-center lg:min-h-[680px]">
           <div
-            className="h-40 w-40 rounded-full bg-cover bg-center shadow-[0_18px_45px_rgba(255,70,16,0.14)] sm:h-48 sm:w-48"
+            className="h-52 w-52 rounded-full bg-cover bg-center shadow-[0_18px_45px_rgba(255,70,16,0.14)] sm:h-60 sm:w-60"
             style={{ backgroundImage: `url(${changePasswordVisual})` }}
           />
-          <h1 className="mt-9 max-w-xs text-3xl font-extrabold leading-tight text-[#051943]">
+          <h1 className="mt-10 max-w-sm text-4xl font-extrabold leading-tight text-[#051943]">
             Keep Your Account Secure
           </h1>
-          <p className="mt-5 max-w-xs text-base leading-7 text-slate-600">
+          <p className="mt-5 max-w-sm text-lg leading-8 text-slate-600">
             Choose a strong password and don't share it with anyone.
           </p>
         </aside>
 
-        <div className="flex items-center px-6 py-10 sm:px-10 lg:px-16">
+        <div className="flex items-center px-6 py-12 sm:px-10 lg:px-20">
           <form
             onSubmit={handleSubmit}
-            className="mx-auto flex w-full max-w-xl flex-col gap-6"
+            className="mx-auto flex w-full max-w-2xl flex-col gap-7"
             noValidate
           >
             <div>
-              <h2 className="text-3xl font-extrabold text-[#051943]">
+              <h2 className="text-4xl font-extrabold text-[#051943]">
                 Change Password
               </h2>
-              <p className="mt-3 text-sm text-slate-600">
+              <p className="mt-4 text-base text-slate-600">
                 Update your password to keep your account secure.
               </p>
             </div>
@@ -211,7 +211,7 @@ const ChangePassword = () => {
                   value={form.currentPassword}
                   onChange={handleChange}
                   placeholder="Enter your current password"
-                  className={`h-12 w-full rounded-md border bg-white px-14 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 ${
+                  className={`h-14 w-full rounded-md border bg-white px-14 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 ${
                     errors.currentPassword
                       ? "border-red-400"
                       : "border-slate-200"
@@ -247,7 +247,7 @@ const ChangePassword = () => {
                   value={form.newPassword}
                   onChange={handleChange}
                   placeholder="Enter your new password"
-                  className={`h-12 w-full rounded-md border bg-white px-14 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 ${
+                  className={`h-14 w-full rounded-md border bg-white px-14 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 ${
                     errors.newPassword ? "border-red-400" : "border-slate-200"
                   }`}
                   autoComplete="new-password"
@@ -281,7 +281,7 @@ const ChangePassword = () => {
                   value={form.confirmNewPassword}
                   onChange={handleChange}
                   placeholder="Confirm your new password"
-                  className={`h-12 w-full rounded-md border bg-white px-14 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 ${
+                  className={`h-14 w-full rounded-md border bg-white px-14 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 ${
                     errors.confirmNewPassword
                       ? "border-red-400"
                       : "border-slate-200"
@@ -299,13 +299,13 @@ const ChangePassword = () => {
               )}
             </div>
 
-            <div className="flex gap-4 rounded-md border border-green-100 bg-green-50/80 px-5 py-4 text-xs text-slate-600 shadow-sm">
+            <div className="flex gap-5 rounded-md border border-green-100 bg-green-50/80 px-6 py-5 text-sm text-slate-600 shadow-sm">
               <ShieldIcon />
               <div>
                 <p className="font-bold text-[#07183a]">
                   Password must contain:
                 </p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {[
                     `At least ${MIN_PASSWORD_LENGTH} characters`,
                     "One uppercase letter",
@@ -314,7 +314,7 @@ const ChangePassword = () => {
                   ].map((requirement) => (
                     <span
                       key={requirement}
-                      className="flex items-center gap-1.5 whitespace-nowrap"
+                      className="flex min-w-0 items-center gap-1.5 leading-5"
                     >
                       <CheckIcon />
                       {requirement}
@@ -327,7 +327,7 @@ const ChangePassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="h-12 w-full rounded-md bg-[#ff2f08] text-base font-bold text-white shadow-[0_10px_24px_rgba(255,47,8,0.22)] transition hover:bg-[#ef2803] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-14 w-full rounded-md bg-[#ff2f08] text-lg font-bold text-white shadow-[0_10px_24px_rgba(255,47,8,0.22)] transition hover:bg-[#ef2803] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Changing..." : "Update Password"}
             </button>

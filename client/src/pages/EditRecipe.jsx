@@ -5,6 +5,7 @@ import {
   getRecipeById,
   getRecipeCategories,
   updateRecipe,
+  deleteRecipe,
 } from "../features/recipes/api/recipeApi";
 import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
 
@@ -124,6 +125,8 @@ const EditRecipe = () => {
   const [tagDraft, setTagDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -345,6 +348,20 @@ const EditRecipe = () => {
       toast.error(err.message || "Failed to update recipe");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteRecipe = async () => {
+    try {
+      setDeleting(true);
+      await deleteRecipe(id);
+      toast.success("Recipe deleted successfully");
+      setShowDeleteConfirm(false);
+      navigate("/recipes");
+    } catch (err) {
+      toast.error(err.message || "Failed to delete recipe");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -824,6 +841,14 @@ const EditRecipe = () => {
                     </div>
                   ))}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-[8px] border border-[#ffd1d1] bg-white text-sm font-black text-[#e32222] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#fff3f3]"
+                >
+                  <Icon name="trash" className="h-4 w-4" />
+                  Delete Recipe
+                </button>
               </section>
 
               <section className="rounded-[8px] border border-[#dcefd8] bg-[#fbfff8] p-5 shadow-[0_18px_45px_rgba(17,24,39,0.04)]">
@@ -847,6 +872,39 @@ const EditRecipe = () => {
           </div>
         </main>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#071739]/55 px-4">
+          <div className="w-full max-w-md rounded-[8px] bg-white p-6 shadow-[0_24px_60px_rgba(7,23,57,0.24)]">
+            <h2 className="text-xl font-black text-[#071739]">
+              Delete Recipe?
+            </h2>
+            <p className="mt-3 text-sm font-bold leading-6 text-[#526078]">
+              Are you sure you want to delete "{form.title || "this recipe"}"?
+              This action cannot be undone.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+                className="h-11 rounded-[8px] border border-[#dbe1ea] bg-white px-5 text-sm font-black text-[#071739] transition-all duration-300 ease-in-out hover:border-[#071739] disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteRecipe}
+                disabled={deleting}
+                className="h-11 rounded-[8px] bg-[#e32222] px-5 text-sm font-black text-white transition-all duration-300 ease-in-out hover:bg-[#c91d1d] disabled:opacity-60"
+              >
+                {deleting ? "Deleting..." : "Delete Recipe"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 };

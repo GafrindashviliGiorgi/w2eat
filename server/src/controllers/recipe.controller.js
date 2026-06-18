@@ -7,16 +7,37 @@ const {
   uploadImagesArray,
 } = require("../config/cloudinary.upload");
 
+const getIdentityValue = (value) => {
+  if (!value) return "";
+
+  if (typeof value === "object") {
+    return String(value._id || value.id || value.email || value.username || "");
+  }
+
+  return String(value);
+};
+
 const canManageRecipe = (recipe, user) => {
   if (!recipe || !user) return false;
   if (user.role === "admin") return true;
 
-  const recipeAuthor = recipe.author?.toString?.().trim();
-  const userId = user._id?.toString?.();
+  const userIdentities = [user._id, user.id, user.username, user.email]
+    .map(getIdentityValue)
+    .filter(Boolean);
+  const recipeOwnerIdentities = [
+    recipe.author,
+    recipe.user,
+    recipe.userId,
+    recipe.creator,
+    recipe.creatorId,
+    recipe.createdBy,
+  ]
+    .map(getIdentityValue)
+    .filter(Boolean);
 
-  return [userId, user.username, user.email]
-    .filter(Boolean)
-    .includes(recipeAuthor);
+  return userIdentities.some((identity) =>
+    recipeOwnerIdentities.includes(identity),
+  );
 };
 
 const getDayKey = (date) => date.toISOString().slice(0, 10);
@@ -562,7 +583,10 @@ exports.deleteRecipe = async (req, res) => {
       });
     }
 
-    await recipe.deleteOne();
+    await Promise.all([
+      Comment.deleteMany({ recipe: recipe._id }),
+      recipe.deleteOne(),
+    ]);
 
     res.status(200).json({
       success: true,

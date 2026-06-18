@@ -64,6 +64,11 @@ export const updateRecipe = async (id, recipeData) =>
     body: JSON.stringify(recipeData),
   });
 
+export const deleteRecipe = async (id) =>
+  fetchRecipeJson(`${API_BASE_URL}/recipes/${id}`, {
+    method: "DELETE",
+  });
+
 export const approveRecipe = async (id) =>
   fetchRecipeJson(`${API_BASE_URL}/recipes/admin/requests/${id}/approve`, {
     method: "PATCH",

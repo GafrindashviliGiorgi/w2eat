@@ -6,6 +6,7 @@ import {
   dislikeRecipe,
   updateComment,
   deleteComment,
+  deleteRecipe,
 } from "../features/recipes/api/recipeApi";
 import { useAuth } from "../features/auth/context/useAuth";
 import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
@@ -192,15 +193,7 @@ const RecipeDetails = () => {
 
     try {
       setDeleting(true);
-
-      const res = await fetch(`${API_BASE_URL}/recipes/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message);
+      await deleteRecipe(id);
 
       toast.success("Recipe deleted successfully");
       setShowConfirm(false);
@@ -283,6 +276,10 @@ const RecipeDetails = () => {
   };
 
   const handleCommentDelete = async (commentId) => {
+    if (!window.confirm("Are you sure you want to delete this comment?")) {
+      return;
+    }
+
     try {
       setCommentActionLoading(true);
       await deleteComment(commentId);
@@ -387,6 +384,7 @@ const RecipeDetails = () => {
               </Link>
 
               <button
+                type="button"
                 onClick={() => setShowConfirm(true)}
                 className="inline-flex h-[52px] items-center gap-3 rounded-[8px] border border-[#ffd6ce] bg-white px-6 text-base font-extrabold text-[#ed3317] shadow-sm transition hover:border-[#ed3317] hover:bg-[#fff4f1]"
               >
@@ -968,6 +966,7 @@ const RecipeDetails = () => {
             </Link>
           ) : (
             <button
+              type="button"
               onClick={handleLike}
               disabled={likeLoading}
               className="inline-flex h-[58px] items-center justify-center gap-3 rounded-[8px] bg-[#ed3317] text-base font-extrabold text-white shadow-[0_14px_28px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12] disabled:opacity-60"
@@ -991,6 +990,7 @@ const RecipeDetails = () => {
 
             <div className="flex justify-end gap-2">
               <button
+                type="button"
                 onClick={() => setShowConfirm(false)}
                 className="h-11 rounded-[8px] border border-[#dbe1ea] px-5 font-extrabold text-[#071739]"
                 disabled={deleting}
@@ -999,6 +999,7 @@ const RecipeDetails = () => {
               </button>
 
               <button
+                type="button"
                 onClick={handleDelete}
                 className="h-11 rounded-[8px] bg-[#ed3317] px-5 font-extrabold text-white transition hover:bg-[#d82b12] disabled:opacity-60"
                 disabled={deleting}

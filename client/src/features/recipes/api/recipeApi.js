@@ -1,6 +1,13 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
+const getAuthHeaders = (token) =>
+  token
+    ? {
+        Authorization: `Bearer ${token}`,
+      }
+    : {};
+
 const fetchRecipeJson = async (url, options = {}) => {
   const res = await fetch(url, {
     credentials: "include",
@@ -69,9 +76,10 @@ export const updateRecipe = async (id, recipeData) =>
     body: JSON.stringify(recipeData),
   });
 
-export const deleteRecipe = async (id) =>
+export const deleteRecipe = async (id, token) =>
   fetchRecipeJson(`${API_BASE_URL}/recipes/${id}`, {
     method: "DELETE",
+    headers: getAuthHeaders(token),
   });
 
 export const approveRecipe = async (id) =>

@@ -66,7 +66,6 @@ const RecipeDetails = () => {
   const [commentText, setCommentText] = useState("");
   const [commentSubmitting, setCommentSubmitting] = useState(false);
 
-  const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const [likes, setLikes] = useState(0);
@@ -186,20 +185,36 @@ const RecipeDetails = () => {
   };
 
   const handleDelete = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this recipe? This action cannot be undone.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     if (!canManageRecipe) {
       toast.error("You can only delete your own recipe");
-      setShowConfirm(false);
+      return;
+    }
+
+    const recipeId = recipe?._id || recipe?.id || id;
+
+    if (!recipeId) {
+      toast.error("Recipe ID is missing");
+      console.error("Delete failed: missing recipe id", { recipe, routeId: id });
       return;
     }
 
     try {
       setDeleting(true);
-      await deleteRecipe(id);
+      const authToken = user?.token || user?.accessToken;
+      await deleteRecipe(recipeId, authToken);
 
       toast.success("Recipe deleted successfully");
-      setShowConfirm(false);
       navigate("/recipes");
     } catch (err) {
+      console.error("Failed to delete recipe", err);
       toast.error(err.message || "Delete failed");
     } finally {
       setDeleting(false);
@@ -386,7 +401,8 @@ const RecipeDetails = () => {
 
               <button
                 type="button"
-                onClick={() => setShowConfirm(true)}
+                onClick={handleDelete}
+                disabled={deleting}
                 className="inline-flex h-[52px] items-center gap-3 rounded-[8px] border border-[#ffd6ce] bg-white px-6 text-base font-extrabold text-[#ed3317] shadow-sm transition hover:border-[#ed3317] hover:bg-[#fff4f1]"
               >
                 <svg
@@ -400,7 +416,7 @@ const RecipeDetails = () => {
                   <path d="M10 11v5" />
                   <path d="M14 11v5" />
                 </svg>
-                Delete Recipe
+                {deleting ? "Deleting..." : "Delete Recipe"}
               </button>
             </div>
           )}
@@ -978,40 +994,6 @@ const RecipeDetails = () => {
         </div>
       </main>
 
-      {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#071739]/55 px-4">
-          <div className="w-full max-w-sm rounded-[8px] bg-white p-6 shadow-[0_24px_60px_rgba(7,23,57,0.24)]">
-            <h2 className="mb-3 text-xl font-extrabold text-[#071739]">
-              Delete Recipe?
-            </h2>
-
-            <p className="mb-5 text-base font-semibold text-[#526078]">
-              Are you sure you want to delete this recipe? This action cannot
-              be undone.
-            </p>
-
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowConfirm(false)}
-                className="h-11 rounded-[8px] border border-[#dbe1ea] px-5 font-extrabold text-[#071739]"
-                disabled={deleting}
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="h-11 rounded-[8px] bg-[#ed3317] px-5 font-extrabold text-white transition hover:bg-[#d82b12] disabled:opacity-60"
-                disabled={deleting}
-              >
-                {deleting ? "Deleting..." : "Yes, Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

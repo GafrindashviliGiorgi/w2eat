@@ -104,7 +104,7 @@ const Home = () => {
   }, [favoriteSearchQuery, favorites]);
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#fffaf5] text-[#071739]">
+    <div className="min-h-[calc(100vh-88px)] bg-[#fffaf5] text-[#071739]">
       <section className="relative mx-auto grid w-full max-w-[1360px] gap-8 px-6 pb-6 pt-9 sm:px-8 lg:h-[490px] lg:grid-cols-[610px_minmax(0,1fr)] lg:px-8 lg:pb-0 lg:pt-11 xl:px-10">
         <div className="relative z-10 flex flex-col justify-center">
           <div className="mb-4 inline-flex h-9 w-fit items-center gap-2.5 rounded-full bg-[#eff8df] px-4 text-sm font-extrabold uppercase text-[#4f8b16] shadow-[0_4px_12px_rgba(79,139,22,0.10)]">

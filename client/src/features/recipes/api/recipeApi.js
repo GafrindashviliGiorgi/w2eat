@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 const fetchRecipeJson = async (url, options = {}) => {
   const res = await fetch(url, {
@@ -10,7 +11,11 @@ const fetchRecipeJson = async (url, options = {}) => {
     ...options,
   });
 
-  const data = await res.json();
+  const contentType = res.headers.get("content-type") || "";
+  const rawBody = await res.text();
+  const data = rawBody && contentType.includes("application/json")
+    ? JSON.parse(rawBody)
+    : {};
 
   if (!res.ok) {
     const error = new Error(data.message || "Request failed");

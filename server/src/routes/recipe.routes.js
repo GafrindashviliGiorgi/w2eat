@@ -165,6 +165,60 @@ router.get("/", getAllRecipes);
  */
 router.get("/categories", getRecipeCategories);
 
+router.get("/admin/dashboard", protect, admin, getAdminDashboard);
+
+/**
+ * @swagger
+ * /recipes/admin/requests:
+ *   get:
+ *     summary: Pending recipe requests (admin only)
+ *     tags: [Recipes]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Pending requests list
+ *       403:
+ *         description: Admin role required
+ */
+router.get("/admin/requests", protect, admin, getPendingRecipes);
+
+/**
+ * @swagger
+ * /recipes/admin/requests/{id}/approve:
+ *   patch:
+ *     summary: Approve recipe request (admin only)
+ *     tags: [Recipes]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Recipe approved
+ *       403:
+ *         description: Admin role required
+ *       404:
+ *         description: Recipe not found
+ */
+router.patch(
+  "/admin/requests/:id/approve",
+  protect,
+  admin,
+  approveRecipeRequest,
+);
+
+router.patch(
+  "/admin/requests/:id/reject",
+  protect,
+  admin,
+  rejectRecipeRequest,
+);
+
 /**
  * @swagger
  * /recipes/{id}:
@@ -303,60 +357,6 @@ router.patch("/:id/like", protect, likeRecipe);
  *         description: ავტორიზაცია საჭიროა
  */
 router.patch("/:id/dislike", protect, dislikeRecipe);
-
-router.get("/admin/dashboard", protect, admin, getAdminDashboard);
-
-/**
- * @swagger
- * /recipes/admin/requests:
- *   get:
- *     summary: Pending recipe requests (admin only)
- *     tags: [Recipes]
- *     security:
- *       - cookieAuth: []
- *     responses:
- *       200:
- *         description: Pending requests list
- *       403:
- *         description: Admin role required
- */
-router.get("/admin/requests", protect, admin, getPendingRecipes);
-
-/**
- * @swagger
- * /recipes/admin/requests/{id}/approve:
- *   patch:
- *     summary: Approve recipe request (admin only)
- *     tags: [Recipes]
- *     security:
- *       - cookieAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Recipe approved
- *       403:
- *         description: Admin role required
- *       404:
- *         description: Recipe not found
- */
-router.patch(
-  "/admin/requests/:id/approve",
-  protect,
-  admin,
-  approveRecipeRequest,
-);
-
-router.patch(
-  "/admin/requests/:id/reject",
-  protect,
-  admin,
-  rejectRecipeRequest,
-);
 
 /**
  * @swagger

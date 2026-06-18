@@ -11,7 +11,12 @@ const getIdentityValue = (value) => {
   if (!value) return "";
 
   if (typeof value === "object") {
-    return String(value._id || value.id || value.email || value.username || "");
+    if (value._id) return String(value._id);
+    if (value.id) return String(value.id);
+    if (value.email) return String(value.email);
+    if (value.username) return String(value.username);
+
+    return String(value);
   }
 
   return String(value);
@@ -20,6 +25,13 @@ const getIdentityValue = (value) => {
 const canManageRecipe = (recipe, user) => {
   if (!recipe || !user) return false;
   if (user.role === "admin") return true;
+
+  const currentUserId = getIdentityValue(user._id || user.id);
+  const recipeAuthorId = getIdentityValue(recipe.author);
+
+  if (currentUserId && recipeAuthorId && currentUserId === recipeAuthorId) {
+    return true;
+  }
 
   const userIdentities = [user._id, user.id, user.username, user.email]
     .map(getIdentityValue)

@@ -486,7 +486,7 @@ exports.likeRecipe = async (req, res) => {
       recipe.dislikes = Math.max(recipe.dislikes - 1, 0);
     }
 
-    await recipe.save();
+    await recipe.save({ validateModifiedOnly: true });
 
     res.status(200).json({
       success: true,
@@ -543,7 +543,7 @@ exports.dislikeRecipe = async (req, res) => {
       recipe.likes = Math.max(recipe.likes - 1, 0);
     }
 
-    await recipe.save();
+    await recipe.save({ validateModifiedOnly: true });
 
     res.status(200).json({
       success: true,

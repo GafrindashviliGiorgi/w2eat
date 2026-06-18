@@ -1,26 +1,27 @@
 const rateLimit = require("express-rate-limit");
 
-// 1. გლობალური ლიმიტერი მთლიანი API-სთვის
+const isProduction = process.env.NODE_ENV === "production";
+
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 წუთი (დროის ფანჯარა)
-  max: 100, // მაქსიმუმ 100 რექვესტი ამ 15 წუთში თითო IP-დან
+  windowMs: 15 * 60 * 1000,
+  max: isProduction ? 300 : 5000,
+  skip: (req) => !isProduction && ["GET", "OPTIONS"].includes(req.method),
   message: {
     status: 429,
     message:
-      "ძალიან ბევრი მოთხოვნა გაიგზავნა ამ IP-დან. გთხოვთ სცადოთ 15 წუთის შემდეგ.",
+      "Too many requests from this IP. Please try again after 15 minutes.",
   },
-  standardHeaders: true, // აბრუნებს Standard RateLimit-* ჰედერებს პასუხში
-  legacyHeaders: false, // თიშავს ძველ X-RateLimit-* ჰედერებს
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
-// 2. მკაცრი ლიმიტერი ავტორიზაციის ენდპოინტებისთვის (Login/Register)
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 წუთი
-  max: 5, // მაქსიმუმ 5 მცდელობა!
+  windowMs: 15 * 60 * 1000,
+  max: isProduction ? 5 : 50,
   message: {
     status: 429,
     message:
-      "უსაფრთხოების მიზნით, ავტორიზაციის მცდელობები შეზღუდულია. სცადეთ 15 წუთში.",
+      "Too many authentication attempts. Please try again after 15 minutes.",
   },
   standardHeaders: true,
   legacyHeaders: false,

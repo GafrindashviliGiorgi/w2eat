@@ -56,11 +56,11 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#fffaf4] px-4 py-8 text-[#071739] sm:px-6 lg:px-10">
-      <main className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-7xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-        <section className="relative min-h-[520px] lg:min-h-[700px]">
-          <div className="relative z-10 max-w-xl pt-2 sm:pt-8 lg:pt-12">
-            <h1 className="max-w-[540px] text-4xl font-bold leading-tight text-[#071739] sm:text-5xl lg:text-6xl">
+    <div className="min-h-[calc(100vh-68px)] overflow-hidden bg-[#fffaf4] px-4 py-4 text-[#071739] sm:px-6 lg:px-10">
+      <main className="mx-auto grid min-h-[calc(100vh-100px)] w-full max-w-6xl items-center gap-6 lg:grid-cols-[1.02fr_0.98fr]">
+        <section className="relative min-h-[440px] lg:min-h-[560px]">
+          <div className="relative z-10 max-w-lg pt-1 sm:pt-5 lg:pt-8">
+            <h1 className="max-w-[500px] text-4xl font-bold leading-tight text-[#071739] sm:text-[44px] lg:text-[52px]">
               Welcome back
               <br />
               to{" "}
@@ -69,32 +69,32 @@ const LoginForm = () => {
                 <img
                   src={leaf}
                   alt=""
-                  className="ml-2 inline-block h-11 w-11 scale-[2.2] object-cover align-middle sm:h-12 sm:w-12"
+                  className="ml-2 inline-block h-9 w-9 scale-[2] object-cover align-middle sm:h-10 sm:w-10"
                 />
               </span>
             </h1>
-            <p className="mt-6 max-w-[430px] text-base leading-8 text-[#283247] sm:text-lg">
+            <p className="mt-4 max-w-[390px] text-base leading-7 text-[#283247]">
               Sign in to continue discovering healthy, personalized recipes
               that fit your goals.
             </p>
 
-            <div className="mt-10 grid gap-7 sm:max-w-[470px]">
+            <div className="mt-7 grid gap-5 sm:max-w-[430px]">
               {featureItems.map((item) => (
-                <div key={item.title} className="flex items-center gap-5">
+                <div key={item.title} className="flex items-center gap-4">
                   <div
-                    className={`flex h-[72px] w-[72px] shrink-0 items-center justify-center overflow-hidden rounded-full ${item.tone}`}
+                    className={`flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full ${item.tone}`}
                   >
                     <img
                       src={item.icon}
                       alt=""
-                      className="h-16 w-16 object-cover"
+                      className="h-14 w-14 object-cover"
                     />
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-[#071739]">
                       {item.title}
                     </h3>
-                    <p className="mt-2 max-w-[320px] text-sm leading-6 text-[#3d465a]">
+                    <p className="mt-1 max-w-[300px] text-sm leading-6 text-[#3d465a]">
                       {item.description}
                     </p>
                   </div>
@@ -106,20 +106,20 @@ const LoginForm = () => {
           <img
             src={signinSignupDetail}
             alt=""
-            className="pointer-events-none absolute -bottom-48 left-[90%] z-0 hidden w-[620px] max-w-none -translate-x-1/4 lg:block xl:left-[94%] xl:w-[680px]"
+            className="pointer-events-none absolute -bottom-24 left-[88%] z-0 hidden w-[420px] max-w-none -translate-x-1/4 lg:block xl:left-[92%] xl:w-[470px]"
           />
         </section>
 
-        <section className="relative z-10 flex flex-col items-center gap-7">
+        <section className="relative z-10 flex flex-col items-center gap-4">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="w-full max-w-[520px] space-y-7 rounded-[28px] border border-white/80 bg-white/95 p-7 shadow-[0_24px_70px_rgba(7,23,57,0.13)] backdrop-blur sm:p-10"
+            className="w-full max-w-[500px] space-y-5 rounded-[22px] border border-white/80 bg-white/95 p-6 shadow-[0_20px_56px_rgba(7,23,57,0.12)] backdrop-blur sm:p-8"
           >
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-[#071739] sm:text-3xl">
+              <h2 className="text-2xl font-bold text-[#071739]">
                 Sign in to your account
               </h2>
-              <p className="mt-3 text-sm text-[#465066] sm:text-base">
+              <p className="mt-2 text-sm text-[#465066]">
                 Enter your email and password to continue
               </p>
             </div>
@@ -132,14 +132,14 @@ const LoginForm = () => {
 
             {/* Email */}
             <div>
-              <label className="mb-3 block text-sm font-semibold text-[#071739]">
+              <label className="mb-2 block text-sm font-semibold text-[#071739]">
                 Email address
               </label>
               <input
                 type="email"
                 placeholder="Email"
                 {...register("email")}
-                className="w-full rounded-xl border border-[#d9dde6] bg-white px-4 py-4 text-[#071739] outline-none transition placeholder:text-[#8a92a3] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10"
+                className="w-full rounded-xl border border-[#d9dde6] bg-white px-4 py-3 text-[#071739] outline-none transition placeholder:text-[#8a92a3] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10"
               />
               {errors.email && (
                 <p className="mt-2 text-sm text-red-500">
@@ -150,14 +150,14 @@ const LoginForm = () => {
 
             {/* Password */}
             <div>
-              <label className="mb-3 block text-sm font-semibold text-[#071739]">
+              <label className="mb-2 block text-sm font-semibold text-[#071739]">
                 Password
               </label>
               <input
                 type="password"
                 placeholder="Password"
                 {...register("password")}
-                className="w-full rounded-xl border border-[#d9dde6] bg-white px-4 py-4 text-[#071739] outline-none transition placeholder:text-[#8a92a3] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10"
+                className="w-full rounded-xl border border-[#d9dde6] bg-white px-4 py-3 text-[#071739] outline-none transition placeholder:text-[#8a92a3] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10"
               />
               {errors.password && (
                 <p className="mt-2 text-sm text-red-500">
@@ -170,7 +170,7 @@ const LoginForm = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-[#ed3317] py-4 text-base font-bold text-white shadow-[0_12px_30px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12] disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-xl bg-[#ed3317] py-3.5 text-base font-bold text-white shadow-[0_12px_30px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? "Loading..." : "Login"}
             </button>
@@ -186,7 +186,7 @@ const LoginForm = () => {
             </p>
           </form>
 
-          <p className="relative z-20 rounded-full bg-[#fffaf4]/90 px-4 py-2 text-center text-sm text-[#596174] shadow-sm">
+          <p className="relative z-20 rounded-full bg-[#fffaf4]/90 px-4 py-2 text-center text-xs text-[#596174] shadow-sm sm:text-sm">
             Your data is safe with us.{" "}
             <span className="font-semibold text-[#4f8b16]">
               We never share your information.

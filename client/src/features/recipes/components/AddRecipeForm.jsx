@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { createRecipe } from "../api/recipeApi";
 import { useAuth } from "../../auth/context/useAuth";
-import addRecipeDetail from "../../../../design/photoDeatails/addnewRecepieDtl.png";
 import addRecipeIcon1 from "../../../../design/photoDeatails/addnewRecepiesicon1.png";
 import addRecipeIcon2 from "../../../../design/photoDeatails/addnewRecepiesicon2.png";
 import addRecipeIcon3 from "../../../../design/photoDeatails/addnewRecepiesicon3.png";
@@ -260,14 +259,6 @@ const AddRecipeForm = () => {
 
   return (
     <div className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-[#fffaf5] px-6 pb-12 pt-8 text-[#071739] sm:px-8 lg:px-10">
-      <div className="pointer-events-none absolute right-0 top-0 hidden h-[210px] w-[500px] overflow-hidden xl:block">
-        <img
-          src={addRecipeDetail}
-          alt=""
-          className="absolute -right-10 -top-[136px] w-[540px] max-w-none object-contain"
-        />
-      </div>
-
       <div className="relative z-10 mx-auto max-w-[1360px]">
         <div className="mb-7 max-w-[720px]">
           <h2 className="text-[40px] font-extrabold leading-tight text-[#071739] sm:text-[44px]">

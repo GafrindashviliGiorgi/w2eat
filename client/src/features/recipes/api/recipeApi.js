@@ -55,6 +55,15 @@ export const getRecipeCategories = async () => {
   return Array.isArray(response.data) ? response.data : [];
 };
 
+export const getRecipeById = async (id) =>
+  fetchRecipeJson(`${API_BASE_URL}/recipes/${id}`);
+
+export const updateRecipe = async (id, recipeData) =>
+  fetchRecipeJson(`${API_BASE_URL}/recipes/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(recipeData),
+  });
+
 export const approveRecipe = async (id) =>
   fetchRecipeJson(`${API_BASE_URL}/recipes/admin/requests/${id}/approve`, {
     method: "PATCH",

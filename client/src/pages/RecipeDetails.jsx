@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import {
   likeRecipe,
@@ -73,6 +74,7 @@ const RecipeDetails = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
 
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentText, setEditingCommentText] = useState("");
@@ -93,6 +95,14 @@ const RecipeDetails = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const openImagePreview = () => {
+    setIsImagePreviewOpen(true);
+  };
+
+  const closeImagePreview = () => {
+    setIsImagePreviewOpen(false);
   };
 
   useEffect(() => {
@@ -139,6 +149,24 @@ const RecipeDetails = () => {
     getRecipe();
     getRecipeComments();
   }, [API_BASE_URL, id]);
+
+  useEffect(() => {
+    if (!isImagePreviewOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeImagePreview();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [isImagePreviewOpen]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -423,13 +451,34 @@ const RecipeDetails = () => {
         </div>
 
         <section className="grid gap-8 lg:grid-cols-[minmax(360px,0.95fr)_1.05fr]">
-          <div className="relative overflow-hidden rounded-[8px] bg-[#f5eee5] shadow-[0_14px_34px_rgba(7,23,57,0.08)]">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={openImagePreview}
+            onClickCapture={openImagePreview}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openImagePreview();
+              }
+            }}
+            className="relative block w-full cursor-zoom-in overflow-hidden rounded-[8px] bg-[#f5eee5] text-left shadow-[0_14px_34px_rgba(7,23,57,0.08)]"
+            aria-label={`Enlarge ${recipe.title} photo`}
+          >
             <img
               src={getRecipeImage(recipe)}
               alt={recipe.title}
               className="aspect-[1.25/1] w-full object-cover"
             />
-            <span className="absolute right-5 top-5 grid h-14 w-14 place-items-center rounded-full bg-white text-[#071739] shadow-[0_12px_24px_rgba(7,23,57,0.16)]">
+            <button
+              type="button"
+              className="absolute right-5 top-5 grid h-14 w-14 place-items-center rounded-full bg-white text-[#071739] shadow-[0_12px_24px_rgba(7,23,57,0.16)] transition hover:bg-[#fff0e9] hover:text-[#ed3317]"
+              onClick={(event) => {
+                event.stopPropagation();
+                openImagePreview();
+              }}
+              aria-label={`Enlarge ${recipe.title} photo`}
+            >
               <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
@@ -440,7 +489,7 @@ const RecipeDetails = () => {
                 <path d="m18 5-6 6" />
                 <path d="m6 19 6-6" />
               </svg>
-            </span>
+            </button>
           </div>
 
           <div className="flex flex-col justify-center">
@@ -994,6 +1043,36 @@ const RecipeDetails = () => {
         </div>
       </main>
 
+      {isImagePreviewOpen &&
+        createPortal(
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#071739]/85 p-4 sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${recipe.title} enlarged photo`}
+          onClick={closeImagePreview}
+        >
+          <button
+            type="button"
+            className="absolute right-5 top-5 grid h-12 w-12 place-items-center rounded-full bg-white text-2xl font-extrabold text-[#071739] shadow-[0_14px_32px_rgba(0,0,0,0.24)] transition hover:bg-[#fff0e9] hover:text-[#ed3317]"
+            onClick={(event) => {
+              event.stopPropagation();
+              closeImagePreview();
+            }}
+            aria-label="Close enlarged photo"
+          >
+            x
+          </button>
+
+          <img
+            src={getRecipeImage(recipe)}
+            alt={recipe.title}
+            className="max-h-[88vh] max-w-full rounded-[8px] object-contain shadow-[0_24px_60px_rgba(0,0,0,0.35)]"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>,
+        document.body,
+      )}
     </div>
   );
 };

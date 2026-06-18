@@ -613,25 +613,25 @@ const Recipes = () => {
                 const favorite = isFavorite(recipe);
 
                 return (
-                  <Link
+                  <article
                     key={recipe._id}
-                    to={`/recipes/${recipe._id}`}
                     className="group overflow-hidden rounded-[8px] border border-[#efe7dd] bg-white shadow-[0_16px_38px_rgba(7,23,57,0.08)] transition hover:-translate-y-1 hover:shadow-[0_22px_48px_rgba(7,23,57,0.13)]"
                   >
-                    <div className="relative h-[176px] overflow-hidden bg-[#f5eee5]">
-                      <img
-                        src={getRecipeImage(recipe)}
-                        alt={recipe.title}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                        loading="lazy"
-                      />
+                    <div className="relative">
+                      <Link to={`/recipes/${recipe._id}`} className="block">
+                        <div className="relative h-[176px] overflow-hidden bg-[#f5eee5]">
+                          <img
+                            src={getRecipeImage(recipe)}
+                            alt={recipe.title}
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        </div>
+                      </Link>
+
                       <button
                         type="button"
-                        onClick={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          toggleFavorite(recipe);
-                        }}
+                        onClick={() => toggleFavorite(recipe)}
                         className={`absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-2xl leading-none shadow-md transition ${
                           favorite
                             ? "bg-[#ed3317] text-white"
@@ -648,7 +648,7 @@ const Recipes = () => {
                       </button>
                     </div>
 
-                    <div className="p-4">
+                    <Link to={`/recipes/${recipe._id}`} className="block p-4">
                       <h2 className="line-clamp-2 min-h-[44px] text-[18px] font-extrabold leading-tight text-[#071739]">
                         {recipe.title}
                       </h2>
@@ -695,8 +695,8 @@ const Recipes = () => {
                           </span>
                         )}
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </article>
                 );
               })}
             </div>

@@ -24,6 +24,9 @@ const fetchRecipeJson = async (url, options = {}) => {
 export const getPendingRecipes = async () =>
   fetchRecipeJson(`${API_BASE_URL}/recipes/admin/requests`);
 
+export const getRecipes = async ({ page = 1, limit = 1000 } = {}) =>
+  fetchRecipeJson(`${API_BASE_URL}/recipes?page=${page}&limit=${limit}`);
+
 export const approveRecipe = async (id) =>
   fetchRecipeJson(`${API_BASE_URL}/recipes/admin/requests/${id}/approve`, {
     method: "PATCH",

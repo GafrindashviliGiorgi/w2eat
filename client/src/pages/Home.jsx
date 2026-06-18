@@ -77,7 +77,7 @@ const getRecipeMarker = (recipe, tags) =>
     : "Favorite");
 
 const Home = () => {
-  const { favorites, toggleFavorite } = useFavorites();
+  const { favorites, isSyncingFavorites, toggleFavorite } = useFavorites();
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#fffaf5] text-[#071739]">
@@ -273,6 +273,12 @@ const Home = () => {
             >
               -&gt;
             </Link>
+          </div>
+        ) : isSyncingFavorites ? (
+          <div className="rounded-[10px] border border-dashed border-[#edcfc7] bg-white px-6 py-10 text-center shadow-[0_16px_38px_rgba(7,23,57,0.06)]">
+            <h3 className="text-xl font-extrabold text-[#071739]">
+              Loading favorite recipes...
+            </h3>
           </div>
         ) : (
           <div className="rounded-[10px] border border-dashed border-[#edcfc7] bg-white px-6 py-10 text-center shadow-[0_16px_38px_rgba(7,23,57,0.06)]">

@@ -21,8 +21,16 @@ const fetchRecipeJson = async (url, options = {}) => {
   return data;
 };
 
-export const getPendingRecipes = async () =>
-  fetchRecipeJson(`${API_BASE_URL}/recipes/admin/requests`);
+export const getPendingRecipes = async ({ status = "pending" } = {}) => {
+  const params = new URLSearchParams({ status });
+
+  return fetchRecipeJson(
+    `${API_BASE_URL}/recipes/admin/requests?${params.toString()}`,
+  );
+};
+
+export const getAdminDashboard = async () =>
+  fetchRecipeJson(`${API_BASE_URL}/recipes/admin/dashboard`);
 
 export const getRecipes = async ({
   page = 1,
@@ -49,6 +57,11 @@ export const getRecipeCategories = async () => {
 
 export const approveRecipe = async (id) =>
   fetchRecipeJson(`${API_BASE_URL}/recipes/admin/requests/${id}/approve`, {
+    method: "PATCH",
+  });
+
+export const rejectRecipe = async (id) =>
+  fetchRecipeJson(`${API_BASE_URL}/recipes/admin/requests/${id}/reject`, {
     method: "PATCH",
   });
 

@@ -1,4 +1,6 @@
 const Recipe = require("../models/Recipe");
+const Comment = require("../models/Comment");
+const User = require("../models/User");
 const recipeCategories = require("../config/recipeCategories");
 const {
   uploadBase64Image,
@@ -15,6 +17,34 @@ const canManageRecipe = (recipe, user) => {
   return [userId, user.username, user.email]
     .filter(Boolean)
     .includes(recipeAuthor);
+};
+
+const getDayKey = (date) => date.toISOString().slice(0, 10);
+
+const getStartOfDay = (date) => {
+  const copy = new Date(date);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+};
+
+const getWeekWindow = () => {
+  const today = getStartOfDay(new Date());
+  const start = new Date(today);
+  start.setDate(today.getDate() - 6);
+
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return {
+      key: getDayKey(date),
+      label: date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+    };
+  });
+
+  return { start, days };
 };
 
 exports.getAllRecipes = async (req, res) => {
@@ -98,6 +128,168 @@ exports.getRecipeCategories = (req, res) => {
     success: true,
     data: recipeCategories,
   });
+};
+
+exports.getAdminDashboard = async (req, res) => {
+  try {
+    const { start, days } = getWeekWindow();
+    const dayMap = new Map(
+      days.map((day) => [
+        day.key,
+        {
+          ...day,
+          added: 0,
+          published: 0,
+        },
+      ]),
+    );
+
+    const [
+      totalRecipes,
+      publishedRecipes,
+      totalUsers,
+      totalComments,
+      pendingCount,
+      approvedCount,
+      rejectedCount,
+      newRecipesThisWeek,
+      newUsersThisWeek,
+      newCommentsThisWeek,
+      chartRows,
+      topCategories,
+      recentRecipes,
+      latestComments,
+      roleCounts,
+    ] = await Promise.all([
+      Recipe.countDocuments(),
+      Recipe.countDocuments({ isPublished: true }),
+      User.countDocuments(),
+      Comment.countDocuments(),
+      Recipe.countDocuments({ approvalStatus: "pending" }),
+      Recipe.countDocuments({ approvalStatus: "approved" }),
+      Recipe.countDocuments({ approvalStatus: "rejected" }),
+      Recipe.countDocuments({ createdAt: { $gte: start } }),
+      User.countDocuments({ createdAt: { $gte: start } }),
+      Comment.countDocuments({ createdAt: { $gte: start } }),
+      Recipe.aggregate([
+        { $match: { createdAt: { $gte: start } } },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$createdAt",
+              },
+            },
+            added: { $sum: 1 },
+            published: {
+              $sum: {
+                $cond: [{ $eq: ["$isPublished", true] }, 1, 0],
+              },
+            },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+      Recipe.aggregate([
+        { $match: { category: { $exists: true, $ne: "" } } },
+        {
+          $group: {
+            _id: "$category",
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1, _id: 1 } },
+        { $limit: 5 },
+      ]),
+      Recipe.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select(
+          "title author category image images approvalStatus isPublished createdAt",
+        )
+        .lean(),
+      Comment.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate("user", "username email profileImg role")
+        .populate("recipe", "title category")
+        .lean(),
+      User.aggregate([
+        {
+          $group: {
+            _id: "$role",
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+    ]);
+
+    chartRows.forEach((row) => {
+      const day = dayMap.get(row._id);
+      if (!day) return;
+
+      day.added = row.added;
+      day.published = row.published;
+    });
+
+    const roles = roleCounts.reduce(
+      (acc, row) => ({
+        ...acc,
+        [row._id || "user"]: row.count,
+      }),
+      {},
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        stats: {
+          totalRecipes,
+          publishedRecipes,
+          categories: recipeCategories.length,
+          users: totalUsers,
+          comments: totalComments,
+          newRecipesThisWeek,
+          newUsersThisWeek,
+          newCommentsThisWeek,
+          requests: {
+            pending: pendingCount,
+            approved: approvedCount,
+            rejected: rejectedCount,
+          },
+        },
+        chart: Array.from(dayMap.values()),
+        topCategories: topCategories.map((category) => ({
+          name: category._id,
+          count: category.count,
+        })),
+        recentRecipes: recentRecipes.map((recipe) => ({
+          ...recipe,
+          status:
+            recipe.approvalStatus || (recipe.isPublished ? "approved" : "pending"),
+        })),
+        latestComments: latestComments.map((comment) => ({
+          _id: comment._id,
+          text: comment.text,
+          createdAt: comment.createdAt,
+          status: "approved",
+          user: comment.user,
+          recipe: comment.recipe,
+        })),
+        roles: {
+          admins: roles.admin || 0,
+          members: roles.user || 0,
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch admin dashboard",
+      error: error.message,
+    });
+  }
 };
 
 //
@@ -239,14 +431,32 @@ exports.createRecipe = async (req, res) => {
 //
 exports.getPendingRecipes = async (req, res) => {
   try {
-    const recipes = await Recipe.find({
-      approvalStatus: "pending",
-      isPublished: false,
-    }).sort({ createdAt: -1 });
+    const statuses = ["pending", "approved", "rejected"];
+    const requestedStatus = statuses.includes(req.query.status)
+      ? req.query.status
+      : "pending";
+
+    const filter = {
+      approvalStatus: requestedStatus,
+    };
+
+    const [recipes, pendingCount, approvedCount, rejectedCount] =
+      await Promise.all([
+        Recipe.find(filter).sort({ createdAt: -1 }),
+        Recipe.countDocuments({ approvalStatus: "pending" }),
+        Recipe.countDocuments({ approvalStatus: "approved" }),
+        Recipe.countDocuments({ approvalStatus: "rejected" }),
+      ]);
 
     res.status(200).json({
       success: true,
       count: recipes.length,
+      status: requestedStatus,
+      counts: {
+        pending: pendingCount,
+        approved: approvedCount,
+        rejected: rejectedCount,
+      },
       data: recipes,
     });
   } catch (error) {
@@ -279,7 +489,7 @@ exports.approveRecipeRequest = async (req, res) => {
     recipe.approvedBy = req.user._id;
     recipe.approvedAt = new Date();
 
-    await recipe.save();
+    await recipe.save({ validateModifiedOnly: true });
 
     res.status(200).json({
       success: true,
@@ -298,6 +508,40 @@ exports.approveRecipeRequest = async (req, res) => {
 //
 // 📌 DELETE RECIPE
 //
+exports.rejectRecipeRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const recipe = await Recipe.findById(id);
+
+    if (!recipe) {
+      return res.status(404).json({
+        success: false,
+        message: "Recipe not found",
+      });
+    }
+
+    recipe.approvalStatus = "rejected";
+    recipe.isPublished = false;
+    recipe.approvedBy = req.user._id;
+    recipe.approvedAt = new Date();
+
+    await recipe.save({ validateModifiedOnly: true });
+
+    res.status(200).json({
+      success: true,
+      message: "Recipe rejected successfully",
+      data: recipe,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to reject recipe request",
+      error: error.message,
+    });
+  }
+};
+
 exports.deleteRecipe = async (req, res) => {
   try {
     const { id } = req.params;

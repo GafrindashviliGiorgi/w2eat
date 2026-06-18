@@ -11,6 +11,8 @@ const {
   dislikeRecipe,
   getPendingRecipes,
   approveRecipeRequest,
+  rejectRecipeRequest,
+  getAdminDashboard,
   getRecipeCategories,
 } = require("../controllers/recipe.controller");
 const { protect, admin } = require("../middleware/auth.middleware");
@@ -302,6 +304,8 @@ router.patch("/:id/like", protect, likeRecipe);
  */
 router.patch("/:id/dislike", protect, dislikeRecipe);
 
+router.get("/admin/dashboard", protect, admin, getAdminDashboard);
+
 /**
  * @swagger
  * /recipes/admin/requests:
@@ -345,6 +349,13 @@ router.patch(
   protect,
   admin,
   approveRecipeRequest,
+);
+
+router.patch(
+  "/admin/requests/:id/reject",
+  protect,
+  admin,
+  rejectRecipeRequest,
 );
 
 /**

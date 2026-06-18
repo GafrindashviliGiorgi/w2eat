@@ -226,9 +226,9 @@ const Home = () => {
                       type="button"
                       onClick={() => toggleFavorite(recipe)}
                       aria-label={`Remove ${recipe.title} from favorites`}
-                      className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white text-lg font-bold text-[#071739] shadow-md transition hover:text-[#ed3317]"
+                      className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white text-lg font-bold text-[#ed3317] shadow-md transition hover:bg-[#fff0e9]"
                     >
-                      <span aria-hidden="true">&#9825;</span>
+                      <span aria-hidden="true">&#9829;</span>
                     </button>
                   </div>
 

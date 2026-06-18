@@ -4,32 +4,14 @@ import { Link } from "react-router-dom";
 import allRecipesDetail from "../../design/photoDeatails/allRecepiesDtl.png";
 import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
 import kcalIcon from "../../design/photoDeatails/kcal.png";
+import {
+  getRecipeCategories,
+  getRecipes as fetchRecipes,
+} from "../features/recipes/api/recipeApi";
 import { useFavorites } from "../features/recipes/context/useFavorites";
 
-const filterChips = [
-  "All",
-  "High Protein",
-  "Low Carb",
-  "Vegan",
-  "Keto",
-  "Low Calorie",
-  "Gluten Free",
-  "Vegetarian",
-  "Dairy Free",
-  "More",
-];
-
-const dietaryOptions = [
-  "High Protein",
-  "Low Carb",
-  "Vegan",
-  "Keto",
-  "Gluten Free",
-  "Vegetarian",
-  "Dairy Free",
-];
-
 const cookingTimes = ["Under 15 min", "15 - 30 min", "30 - 45 min", "45+ min"];
+const difficultyOptions = ["easy", "medium", "hard"];
 
 const tagStyles = [
   "bg-[#edf8df] text-[#177a1b]",
@@ -37,16 +19,6 @@ const tagStyles = [
   "bg-[#f3eafe] text-[#5d2ea6]",
   "bg-[#fff1dc] text-[#bb4d00]",
 ];
-
-const tagAliases = {
-  "High Protein": ["high protein"],
-  "Low Carb": ["low carb", "low carbs"],
-  Vegan: ["vegan"],
-  Keto: ["keto"],
-  "Gluten Free": ["gluten free", "gluten-free"],
-  Vegetarian: ["vegetarian"],
-  "Dairy Free": ["dairy free", "dairy-free"],
-};
 
 const normalizeFilterLabel = (value) =>
   String(value || "")
@@ -138,13 +110,6 @@ const getRecipeCalories = (recipe) => {
   return match ? Number.parseFloat(match[1]) : null;
 };
 
-const recipeMatchesTag = (recipe, option) => {
-  const normalizedText = normalizeFilterLabel(getRecipeSearchText(recipe));
-  const aliases = tagAliases[option] || [option];
-
-  return aliases.some((alias) => normalizedText.includes(normalizeFilterLabel(alias)));
-};
-
 const recipeMatchesCookingTime = (recipe, option) => {
   const cookTime = Number(recipe.cookTime);
   if (!Number.isFinite(cookTime)) return false;
@@ -163,7 +128,9 @@ const Recipes = () => {
   const hasLoadedRecipes = useRef(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedDifficulties, setSelectedDifficulties] = useState([]);
   const [selectedCookingTimes, setSelectedCookingTimes] = useState([]);
   const [minCalories, setMinCalories] = useState("");
   const [maxCalories, setMaxCalories] = useState("");
@@ -172,15 +139,33 @@ const Recipes = () => {
   const [pagination, setPagination] = useState(null);
   const { isFavorite, toggleFavorite } = useFavorites();
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
   const limit = 6;
   const hasActiveFilters =
     Boolean(searchQuery.trim()) ||
-    selectedDietaryTags.length > 0 ||
+    Boolean(selectedCategory) ||
+    selectedDifficulties.length > 0 ||
     selectedCookingTimes.length > 0 ||
     minCalories !== "" ||
     maxCalories !== "";
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCategories = async () => {
+      try {
+        const nextCategories = await getRecipeCategories();
+        if (isMounted) setCategories(nextCategories);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const getRecipes = async () => {
@@ -189,18 +174,11 @@ const Recipes = () => {
           setLoading(true);
         }
 
-        const params = new URLSearchParams({
-          page: String(page),
-          limit: String(hasActiveFilters ? 1000 : limit),
+        const data = await fetchRecipes({
+          page,
+          limit: hasActiveFilters ? 1000 : limit,
+          category: selectedCategory,
         });
-
-        const res = await fetch(`${API_BASE_URL}/recipes?${params.toString()}`);
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || "Error fetching recipes");
-        }
 
         setRecipes(data.data);
         setPagination(data.pagination);
@@ -214,7 +192,7 @@ const Recipes = () => {
     };
 
     getRecipes();
-  }, [page, API_BASE_URL, hasActiveFilters]);
+  }, [page, hasActiveFilters, selectedCategory]);
 
   const filteredRecipes = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -227,9 +205,12 @@ const Recipes = () => {
       const searchableText = getRecipeSearchText(recipe);
       const recipeCalories = getRecipeCalories(recipe);
       const matchesQuery = query ? searchableText.includes(query) : true;
-      const matchesTags = selectedDietaryTags.every((tag) =>
-        recipeMatchesTag(recipe, tag),
-      );
+      const matchesCategory = selectedCategory
+        ? recipe.category === selectedCategory
+        : true;
+      const matchesDifficulty =
+        selectedDifficulties.length === 0 ||
+        selectedDifficulties.includes(normalizeFilterLabel(recipe.difficulty));
       const matchesCookingTime =
         selectedCookingTimes.length === 0 ||
         selectedCookingTimes.some((option) =>
@@ -244,7 +225,8 @@ const Recipes = () => {
 
       return (
         matchesQuery &&
-        matchesTags &&
+        matchesCategory &&
+        matchesDifficulty &&
         matchesCookingTime &&
         matchesMinCalories &&
         matchesMaxCalories
@@ -253,16 +235,17 @@ const Recipes = () => {
   }, [
     recipes,
     searchQuery,
-    selectedDietaryTags,
+    selectedCategory,
+    selectedDifficulties,
     selectedCookingTimes,
     minCalories,
     maxCalories,
   ]);
 
-  const toggleDietaryTag = (option) => {
-    setSelectedDietaryTags((current) =>
+  const toggleDifficulty = (option) => {
+    setSelectedDifficulties((current) =>
       current.includes(option)
-        ? current.filter((tag) => tag !== option)
+        ? current.filter((difficulty) => difficulty !== option)
         : [...current, option],
     );
     setPage(1);
@@ -279,7 +262,8 @@ const Recipes = () => {
 
   const resetFilters = () => {
     setSearchQuery("");
-    setSelectedDietaryTags([]);
+    setSelectedCategory("");
+    setSelectedDifficulties([]);
     setSelectedCookingTimes([]);
     setMinCalories("");
     setMaxCalories("");
@@ -292,15 +276,8 @@ const Recipes = () => {
       return;
     }
 
-    if (chip === "Low Calorie") {
-      setMaxCalories((current) => (current === "500" ? "" : "500"));
-      setPage(1);
-      return;
-    }
-
-    if (dietaryOptions.includes(chip)) {
-      toggleDietaryTag(chip);
-    }
+    setSelectedCategory((current) => (current === chip ? "" : chip));
+    setPage(1);
   };
 
   const minRangePercent = Math.min(
@@ -429,11 +406,10 @@ const Recipes = () => {
         </div>
 
         <div className="relative z-10 mb-5 flex gap-3 overflow-x-auto pb-2 xl:flex-wrap xl:overflow-visible xl:pb-0">
-          {filterChips.map((chip) => {
+          {["All", ...categories].map((chip) => {
             const isChipActive =
               (chip === "All" && !hasActiveFilters) ||
-              selectedDietaryTags.includes(chip) ||
-              (chip === "Low Calorie" && maxCalories === "500");
+              selectedCategory === chip;
 
             return (
               <button
@@ -472,24 +448,76 @@ const Recipes = () => {
               <div>
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-sm font-extrabold text-[#071739]">
-                    Dietary Preference
+                    Category
+                  </h3>
+                  <span className="text-lg font-bold text-[#071739]">^</span>
+                </div>
+
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    setPage(1);
+                  }}
+                  className="h-11 w-full rounded-[8px] border border-[#e6dfd6] bg-[#fffaf5] px-3 text-sm font-bold text-[#071739] outline-none transition focus:border-[#ed3317] focus:ring-2 focus:ring-[#ffddd6]"
+                >
+                  <option value="">All categories</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="border-t border-[#efe7dd] pt-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-extrabold text-[#071739]">
+                    Difficulty
                   </h3>
                   <span className="text-lg font-bold text-[#071739]">^</span>
                 </div>
 
                 <div className="space-y-3">
-                  {dietaryOptions.map((option) => (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedDifficulties([]);
+                      setPage(1);
+                    }}
+                    className={`flex w-full items-center gap-3 rounded-[8px] py-1 text-left text-sm font-semibold transition ${
+                      selectedDifficulties.length === 0
+                        ? "text-[#ed3317]"
+                        : "text-[#4c5669] hover:text-[#ed3317]"
+                    }`}
+                    aria-pressed={selectedDifficulties.length === 0}
+                  >
+                    <span
+                      className={`grid h-5 w-5 place-items-center rounded border text-[0px] font-extrabold after:text-xs after:content-['✓'] ${
+                        selectedDifficulties.length === 0
+                          ? "border-[#ed3317] bg-[#ed3317] text-white"
+                          : "border-[#c4cbd5] bg-white text-transparent"
+                      }`}
+                    >
+                      ✓
+                    </span>
+                    <span>Any difficulty</span>
+                  </button>
+
+                  {difficultyOptions.map((option) => (
                     <label
                       key={option}
                       className="flex items-center gap-3 text-sm font-semibold text-[#4c5669]"
                     >
                       <input
                         type="checkbox"
-                        checked={selectedDietaryTags.includes(option)}
-                        onChange={() => toggleDietaryTag(option)}
+                        checked={selectedDifficulties.includes(option)}
+                        onChange={() => toggleDifficulty(option)}
                         className="h-4 w-4 rounded border-[#c4cbd5] accent-[#ed3317]"
                       />
-                      <span>{option}</span>
+                      <span>
+                        {option.charAt(0).toUpperCase() + option.slice(1)}
+                      </span>
                     </label>
                   ))}
                 </div>

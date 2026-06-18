@@ -1,4 +1,5 @@
 const Recipe = require("../models/Recipe");
+const recipeCategories = require("../config/recipeCategories");
 const {
   uploadBase64Image,
   uploadImagesArray,
@@ -32,7 +33,16 @@ exports.getAllRecipes = async (req, res) => {
     // Public list shows only approved/published recipes.
     filter.isPublished = true;
 
-    if (category) filter.category = category;
+    if (category) {
+      if (!recipeCategories.includes(category)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid recipe category",
+        });
+      }
+
+      filter.category = category;
+    }
     if (difficulty) filter.difficulty = difficulty;
 
     if (search) {
@@ -81,6 +91,13 @@ exports.getAllRecipes = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+exports.getRecipeCategories = (req, res) => {
+  res.status(200).json({
+    success: true,
+    data: recipeCategories,
+  });
 };
 
 //
@@ -136,6 +153,7 @@ exports.createRecipe = async (req, res) => {
       description,
       image,
       images,
+      author,
       ingredients,
       steps,
       cookTime,
@@ -150,6 +168,13 @@ exports.createRecipe = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Title and description are required",
+      });
+    }
+
+    if (!category || !recipeCategories.includes(category)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please choose a valid recipe category",
       });
     }
 
@@ -187,6 +212,13 @@ exports.createRecipe = async (req, res) => {
       data: newRecipe,
     });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
     if (error.statusCode) {
       return res.status(error.statusCode).json({
         success: false,
@@ -354,6 +386,13 @@ exports.updateRecipe = async (req, res) => {
       });
     }
 
+    if (category !== undefined && !recipeCategories.includes(category)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please choose a valid recipe category",
+      });
+    }
+
     const imageUrl = image ? await uploadBase64Image(image) : undefined;
     const imagesUrls = images ? await uploadImagesArray(images) : undefined;
 
@@ -389,6 +428,13 @@ exports.updateRecipe = async (req, res) => {
       data: updatedRecipe,
     });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
     if (error.statusCode) {
       return res.status(error.statusCode).json({
         success: false,

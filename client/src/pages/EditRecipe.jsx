@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { getRecipeCategories } from "../features/recipes/api/recipeApi";
 
 const EditRecipe = () => {
   const { id } = useParams();
@@ -13,6 +14,7 @@ const EditRecipe = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -42,7 +44,26 @@ const EditRecipe = () => {
     };
 
     fetchRecipe();
-  }, [id]);
+  }, [API_BASE_URL, id]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCategories = async () => {
+      try {
+        const nextCategories = await getRecipeCategories();
+        if (isMounted) setCategories(nextCategories);
+      } catch (err) {
+        if (isMounted) setMessage(err.message);
+      }
+    };
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleChange = (e) => {
     setForm({
@@ -61,6 +82,7 @@ const EditRecipe = () => {
 
       const res = await fetch(`${API_BASE_URL}/recipes/${id}`, {
         method: "PUT",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -108,12 +130,20 @@ const EditRecipe = () => {
         required
       />
 
-      <input
+      <select
         name="category"
         value={form.category}
         onChange={handleChange}
         className="w-full mb-3 p-2 border rounded"
-      />
+        required
+      >
+        <option value="">Select a category</option>
+        {categories.map((category) => (
+          <option key={category} value={category}>
+            {category}
+          </option>
+        ))}
+      </select>
 
       <select
         name="difficulty"

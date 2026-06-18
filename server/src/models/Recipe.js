@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const recipeCategories = require("../config/recipeCategories");
 
 const recipeSchema = new mongoose.Schema(
   {
@@ -58,7 +59,9 @@ const recipeSchema = new mongoose.Schema(
 
     // 🏷️ კატეგორიები და ტეგები
     category: {
-      type: String, // "Dessert", "Main Course"
+      type: String,
+      enum: recipeCategories,
+      required: true,
     },
     tags: [
       {

@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { createRecipe } from "../api/recipeApi";
+import { useEffect, useRef, useState } from "react";
+import { createRecipe, getRecipeCategories } from "../api/recipeApi";
 import { useAuth } from "../../auth/context/useAuth";
 import addRecipeIcon1 from "../../../../design/photoDeatails/addnewRecepiesicon1.png";
 import addRecipeIcon2 from "../../../../design/photoDeatails/addnewRecepiesicon2.png";
@@ -43,13 +43,36 @@ const SectionTitle = ({ icon, title }) => (
 const AddRecipeForm = () => {
   const { user } = useAuth();
   const [form, setForm] = useState(INITIAL_FORM);
+  const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [imagePreview, setImagePreview] = useState("");
   const [imagesPreview, setImagesPreview] = useState([]);
   const fileInputRef = useRef(null);
   const filesInputRef = useRef(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCategories = async () => {
+      try {
+        const nextCategories = await getRecipeCategories();
+        if (isMounted) setCategories(nextCategories);
+      } catch (err) {
+        if (isMounted) setMessage(err.message);
+      } finally {
+        if (isMounted) setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleChange = (e) => {
     setForm({
@@ -372,16 +395,27 @@ const AddRecipeForm = () => {
               <div className="grid gap-5 md:grid-cols-2">
                 <label className="block">
                   <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
-                    Category
+                    Category *
                   </span>
-                  <input
-                    type="text"
+                  <select
                     name="category"
-                    placeholder="Select a category"
                     value={form.category}
                     onChange={handleChange}
                     className={inputClass}
-                  />
+                    required
+                    disabled={categoriesLoading}
+                  >
+                    <option value="">
+                      {categoriesLoading
+                        ? "Loading categories..."
+                        : "Select a category"}
+                    </option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className="block">

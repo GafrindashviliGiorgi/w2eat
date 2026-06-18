@@ -11,6 +11,7 @@ const {
   dislikeRecipe,
   getPendingRecipes,
   approveRecipeRequest,
+  getRecipeCategories,
 } = require("../controllers/recipe.controller");
 const { protect, admin } = require("../middleware/auth.middleware");
 
@@ -87,7 +88,8 @@ const { protect, admin } = require("../middleware/auth.middleware");
  *           enum: [easy, medium, hard]
  *         category:
  *           type: string
- *           example: Main Course
+ *           enum: [High Protein, Low Carb, Vegan, Keto, Gluten Free, Vegetarian, Dairy Free, Low Calorie]
+ *           example: High Protein
  *         tags:
  *           type: array
  *           items:
@@ -148,6 +150,18 @@ const { protect, admin } = require("../middleware/auth.middleware");
  *                     $ref: '#/components/schemas/Recipe'
  */
 router.get("/", getAllRecipes);
+
+/**
+ * @swagger
+ * /recipes/categories:
+ *   get:
+ *     summary: Get standardized recipe categories
+ *     tags: [Recipes]
+ *     responses:
+ *       200:
+ *         description: Recipe category list
+ */
+router.get("/categories", getRecipeCategories);
 
 /**
  * @swagger

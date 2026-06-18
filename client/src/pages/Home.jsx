@@ -6,6 +6,8 @@ import homeIcon1 from "../../design/photoDeatails/homeicon1.png";
 import homeIcon2 from "../../design/photoDeatails/homeicon2.png";
 import homeIcon3 from "../../design/photoDeatails/homeicon3.png";
 import icon1 from "../../design/photoDeatails/icon1.png";
+import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
+import { useFavorites } from "../features/recipes/context/useFavorites";
 
 const benefitItems = [
   {
@@ -34,42 +36,49 @@ const benefitItems = [
   },
 ];
 
-const recipeCards = [
-  {
-    title: "Protein Avocado Bowl",
-    time: "18 min",
-    kcal: "420 kcal",
-    marker: "32g Protein",
-    tags: ["High Protein", "Balanced"],
-    imagePosition: "left top",
-  },
-  {
-    title: "Grilled Chicken Quinoa",
-    time: "25 min",
-    kcal: "510 kcal",
-    marker: "45g Protein",
-    tags: ["High Protein", "Low Fat"],
-    imagePosition: "center top",
-  },
-  {
-    title: "Vegan Green Pasta",
-    time: "22 min",
-    kcal: "390 kcal",
-    marker: "Vegan",
-    tags: ["Vegan", "High Fiber"],
-    imagePosition: "right top",
-  },
-  {
-    title: "Keto Salmon Salad",
-    time: "20 min",
-    kcal: "460 kcal",
-    marker: "Omega-3",
-    tags: ["Keto", "High Protein"],
-    imagePosition: "70% top",
-  },
-];
+const getRecipeImage = (recipe) =>
+  recipe?.image || recipe?.images?.[0] || defaultPhoto;
+
+const getRecipeTags = (recipe) =>
+  (Array.isArray(recipe?.tags) ? recipe.tags.filter(Boolean) : []).slice(0, 2);
+
+const getRecipeCalories = (recipe) => {
+  const directValue =
+    recipe?.calories ||
+    recipe?.kcal ||
+    recipe?.caloriesPerServing ||
+    recipe?.nutrition?.calories ||
+    recipe?.nutrition?.kcal;
+
+  if (directValue !== undefined && directValue !== null && directValue !== "") {
+    return String(directValue).toLowerCase().includes("cal")
+      ? String(directValue)
+      : `${directValue} kcal`;
+  }
+
+  const searchText = [
+    recipe?.title,
+    recipe?.description,
+    recipe?.category,
+    Array.isArray(recipe?.tags) ? recipe.tags.join(" ") : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const match = searchText.match(/(\d+(?:\.\d+)?)\s*(kcal|calories|cal)\b/i);
+
+  return match ? `${match[1]} kcal` : "Fresh";
+};
+
+const getRecipeMarker = (recipe, tags) =>
+  tags[0] ||
+  recipe?.category ||
+  (recipe?.difficulty
+    ? `${recipe.difficulty.charAt(0).toUpperCase()}${recipe.difficulty.slice(1)}`
+    : "Favorite");
 
 const Home = () => {
+  const { favorites, toggleFavorite } = useFavorites();
+
   return (
     <div className="min-h-screen overflow-hidden bg-[#fffaf5] text-[#071739]">
       <section className="relative mx-auto grid w-full max-w-[1360px] gap-8 px-6 pb-6 pt-9 sm:px-8 lg:h-[490px] lg:grid-cols-[610px_minmax(0,1fr)] lg:px-8 lg:pb-0 lg:pt-11 xl:px-10">
@@ -168,11 +177,10 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1280px] px-6 pb-14 pt-5 sm:px-8 lg:px-8">
+      <section className="mx-auto max-w-[1280px] px-6 pb-16 pt-5 sm:px-8 lg:px-8">
         <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="relative text-3xl font-extrabold leading-tight text-[#071739] sm:text-[34px]">
-            Healthy Recipes{" "}
-            <span className="text-[#ed3317]">of the Day</span>
+            Your Favorite <span className="text-[#ed3317]">Recipes</span>
             <img
               src={homeIcon2}
               alt=""
@@ -183,77 +191,99 @@ const Home = () => {
             to="/recipes"
             className="inline-flex items-center gap-3 self-start text-base font-extrabold text-[#ed3317] transition hover:text-[#d82b12] sm:self-auto"
           >
-            View all recipes
+            Find more recipes
             <span className="grid h-9 w-9 place-items-center rounded-full border border-[#ffb3a5] bg-white text-lg shadow-sm">
               -&gt;
             </span>
           </Link>
         </div>
 
-        <div className="relative">
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {recipeCards.map((recipe) => (
-              <article
-                key={recipe.title}
-                className="overflow-hidden rounded-[10px] border border-[#efe7dd] bg-white shadow-[0_18px_40px_rgba(7,23,57,0.09)]"
-              >
-                <div className="relative h-[136px] overflow-hidden bg-[#f5eee5]">
-                  <img
-                    src={homePageDetail}
-                    alt=""
-                    style={{ objectPosition: recipe.imagePosition }}
-                    className="h-full w-full object-cover"
-                  />
-                  <span className="absolute left-4 top-4 rounded-full bg-[#253243] px-3 py-1.5 text-xs font-extrabold text-white">
-                    {recipe.time}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={`Save ${recipe.title}`}
-                    className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white text-lg font-bold text-[#071739] shadow-md"
-                  >
-                    <span aria-hidden="true">&#9825;</span>
-                  </button>
-                </div>
+        {favorites.length > 0 ? (
+          <div className="relative">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {favorites.map((recipe) => {
+              const tags = getRecipeTags(recipe);
+              const marker = getRecipeMarker(recipe, tags);
 
-                <div className="p-4 pt-3">
-                  <h3 className="text-xl font-extrabold leading-tight text-[#071739]">
-                    {recipe.title}
-                  </h3>
-                  <div className="mt-2.5 flex flex-wrap items-center gap-3 text-sm font-semibold text-[#3d465a]">
-                    <span className="font-bold text-[#ed3317]">
-                      {recipe.kcal}
+              return (
+                <article
+                  key={recipe._id || recipe.id}
+                  className="overflow-hidden rounded-[10px] border border-[#efe7dd] bg-white shadow-[0_18px_40px_rgba(7,23,57,0.09)]"
+                >
+                  <div className="relative h-[136px] overflow-hidden bg-[#f5eee5]">
+                    <Link to={`/recipes/${recipe._id || recipe.id}`}>
+                      <img
+                        src={getRecipeImage(recipe)}
+                        alt={recipe.title}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </Link>
+                    <span className="absolute left-4 top-4 rounded-full bg-[#253243] px-3 py-1.5 text-xs font-extrabold text-white">
+                      {recipe.cookTime ? `${recipe.cookTime} min` : "Fresh"}
                     </span>
-                    <span className="h-5 w-px bg-[#d8d0c7]" />
-                    <span className="text-[#4f8b16]">{recipe.marker}</span>
+                    <button
+                      type="button"
+                      onClick={() => toggleFavorite(recipe)}
+                      aria-label={`Remove ${recipe.title} from favorites`}
+                      className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white text-lg font-bold text-[#071739] shadow-md transition hover:text-[#ed3317]"
+                    >
+                      <span aria-hidden="true">&#9825;</span>
+                    </button>
                   </div>
-                  <div className="mt-2.5 flex flex-wrap gap-2">
-                    {recipe.tags.map((tag, index) => (
-                      <span
-                        key={tag}
-                        className={`rounded-full px-3.5 py-1.5 text-sm font-semibold ${
-                          index === 0
-                            ? "bg-[#edf8df] text-[#4f8b16]"
-                            : "bg-[#eef3ff] text-[#0d2a61]"
-                        }`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
 
-          <button
-            type="button"
-            aria-label="Next recipes"
-            className="absolute -right-6 top-1/2 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-bold text-[#ed3317] shadow-[0_14px_35px_rgba(7,23,57,0.15)] transition hover:text-[#d82b12] xl:grid"
-          >
-            -&gt;
-          </button>
-        </div>
+                  <Link
+                    to={`/recipes/${recipe._id || recipe.id}`}
+                    className="block p-4 pt-3"
+                  >
+                    <h3 className="line-clamp-2 min-h-[56px] text-xl font-extrabold leading-tight text-[#071739]">
+                      {recipe.title}
+                    </h3>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-3 text-sm font-semibold text-[#3d465a]">
+                      <span className="font-bold text-[#ed3317]">
+                        {getRecipeCalories(recipe)}
+                      </span>
+                      <span className="h-5 w-px bg-[#d8d0c7]" />
+                      <span className="text-[#4f8b16]">{marker}</span>
+                    </div>
+                    <div className="mt-2.5 flex flex-wrap gap-2">
+                      {(tags.length ? tags : ["Favorite"]).map((tag, index) => (
+                        <span
+                          key={`${recipe._id || recipe.id}-${tag}`}
+                          className={`rounded-full px-3.5 py-1.5 text-sm font-semibold ${
+                            index === 0
+                              ? "bg-[#edf8df] text-[#4f8b16]"
+                              : "bg-[#eef3ff] text-[#0d2a61]"
+                          }`}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </Link>
+                </article>
+              );
+            })}
+            </div>
+
+            <Link
+              to="/recipes"
+              aria-label="Find more recipes"
+              className="absolute -right-6 top-1/2 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-bold text-[#ed3317] shadow-[0_14px_35px_rgba(7,23,57,0.15)] transition hover:text-[#d82b12] xl:grid"
+            >
+              -&gt;
+            </Link>
+          </div>
+        ) : (
+          <div className="rounded-[10px] border border-dashed border-[#edcfc7] bg-white px-6 py-10 text-center shadow-[0_16px_38px_rgba(7,23,57,0.06)]">
+            <h3 className="text-xl font-extrabold text-[#071739]">
+              No favorite recipes yet!
+            </h3>
+            <p className="mt-2 text-base font-semibold text-[#4c5669]">
+              Tap the heart on recipes you like and they will appear here.
+            </p>
+          </div>
+        )}
       </section>
 
       <img

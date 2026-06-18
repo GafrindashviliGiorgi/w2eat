@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 
 import allRecipesDetail from "../../design/photoDeatails/allRecepiesDtl.png";
 import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
+import kcalIcon from "../../design/photoDeatails/kcal.png";
+import { useFavorites } from "../features/recipes/context/useFavorites";
 
 const filterChips = [
   "All",
@@ -36,6 +38,23 @@ const tagStyles = [
   "bg-[#fff1dc] text-[#bb4d00]",
 ];
 
+const tagAliases = {
+  "High Protein": ["high protein"],
+  "Low Carb": ["low carb", "low carbs"],
+  Vegan: ["vegan"],
+  Keto: ["keto"],
+  "Gluten Free": ["gluten free", "gluten-free"],
+  Vegetarian: ["vegetarian"],
+  "Dairy Free": ["dairy free", "dairy-free"],
+};
+
+const normalizeFilterLabel = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/[-_]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
 const getRecipeImage = (recipe) =>
   recipe.image || recipe.images?.[0] || defaultPhoto;
 
@@ -53,19 +72,115 @@ const getRecipeTags = (recipe) => {
     .slice(0, 2);
 };
 
+const getRecipeSearchText = (recipe) => {
+  const ingredients = Array.isArray(recipe.ingredients)
+    ? recipe.ingredients
+        .map((ingredient) =>
+          [ingredient?.name, ingredient?.quantity].filter(Boolean).join(" "),
+        )
+        .join(" ")
+    : "";
+
+  const nutrition = recipe.nutrition
+    ? Object.values(recipe.nutrition).filter(Boolean).join(" ")
+    : "";
+
+  return [
+    recipe.title,
+    recipe.description,
+    recipe.category,
+    recipe.difficulty,
+    Array.isArray(recipe.tags) ? recipe.tags.join(" ") : "",
+    ingredients,
+    nutrition,
+    recipe.calories,
+    recipe.kcal,
+    recipe.protein,
+    recipe.carbs,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+};
+
+const getNestedNumber = (source, keys) => {
+  for (const key of keys) {
+    const value = key
+      .split(".")
+      .reduce((current, part) => current?.[part], source);
+    const numericValue =
+      typeof value === "number"
+        ? value
+        : Number.parseFloat(String(value || "").replace(/[^\d.]/g, ""));
+
+    if (Number.isFinite(numericValue)) return numericValue;
+  }
+
+  return null;
+};
+
+const getRecipeCalories = (recipe) => {
+  const directValue = getNestedNumber(recipe, [
+    "calories",
+    "calorie",
+    "kcal",
+    "caloriesPerServing",
+    "nutrition.calories",
+    "nutrition.kcal",
+    "nutrition.caloriesPerServing",
+    "macros.calories",
+    "macros.kcal",
+  ]);
+
+  if (directValue !== null) return directValue;
+
+  const match = getRecipeSearchText(recipe).match(/(\d+(?:\.\d+)?)\s*(kcal|calories|cal)\b/);
+  return match ? Number.parseFloat(match[1]) : null;
+};
+
+const recipeMatchesTag = (recipe, option) => {
+  const normalizedText = normalizeFilterLabel(getRecipeSearchText(recipe));
+  const aliases = tagAliases[option] || [option];
+
+  return aliases.some((alias) => normalizedText.includes(normalizeFilterLabel(alias)));
+};
+
+const recipeMatchesCookingTime = (recipe, option) => {
+  const cookTime = Number(recipe.cookTime);
+  if (!Number.isFinite(cookTime)) return false;
+
+  if (option === "Under 15 min") return cookTime < 15;
+  if (option === "15 - 30 min") return cookTime >= 15 && cookTime <= 30;
+  if (option === "30 - 45 min") return cookTime > 30 && cookTime <= 45;
+  if (option === "45+ min") return cookTime > 45;
+
+  return true;
+};
+
 const Recipes = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const hasLoadedRecipes = useRef(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDietaryTags, setSelectedDietaryTags] = useState([]);
+  const [selectedCookingTimes, setSelectedCookingTimes] = useState([]);
+  const [minCalories, setMinCalories] = useState("");
+  const [maxCalories, setMaxCalories] = useState("");
 
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const limit = 6;
+  const hasActiveFilters =
+    Boolean(searchQuery.trim()) ||
+    selectedDietaryTags.length > 0 ||
+    selectedCookingTimes.length > 0 ||
+    minCalories !== "" ||
+    maxCalories !== "";
 
   useEffect(() => {
     const getRecipes = async () => {
@@ -76,12 +191,8 @@ const Recipes = () => {
 
         const params = new URLSearchParams({
           page: String(page),
-          limit: String(limit),
+          limit: String(hasActiveFilters ? 1000 : limit),
         });
-
-        if (searchQuery.trim()) {
-          params.set("search", searchQuery.trim());
-        }
 
         const res = await fetch(`${API_BASE_URL}/recipes?${params.toString()}`);
 
@@ -103,37 +214,103 @@ const Recipes = () => {
     };
 
     getRecipes();
-  }, [page, API_BASE_URL, searchQuery]);
+  }, [page, API_BASE_URL, hasActiveFilters]);
 
   const filteredRecipes = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-
-    if (!query) return recipes;
+    const minimumCalories =
+      minCalories === "" ? null : Number.parseFloat(minCalories);
+    const maximumCalories =
+      maxCalories === "" ? null : Number.parseFloat(maxCalories);
 
     return recipes.filter((recipe) => {
-      const ingredients = Array.isArray(recipe.ingredients)
-        ? recipe.ingredients
-            .map((ingredient) =>
-              [ingredient?.name, ingredient?.quantity].filter(Boolean).join(" "),
-            )
-            .join(" ")
-        : "";
+      const searchableText = getRecipeSearchText(recipe);
+      const recipeCalories = getRecipeCalories(recipe);
+      const matchesQuery = query ? searchableText.includes(query) : true;
+      const matchesTags = selectedDietaryTags.every((tag) =>
+        recipeMatchesTag(recipe, tag),
+      );
+      const matchesCookingTime =
+        selectedCookingTimes.length === 0 ||
+        selectedCookingTimes.some((option) =>
+          recipeMatchesCookingTime(recipe, option),
+        );
+      const matchesMinCalories =
+        minimumCalories === null ||
+        (recipeCalories !== null && recipeCalories >= minimumCalories);
+      const matchesMaxCalories =
+        maximumCalories === null ||
+        (recipeCalories !== null && recipeCalories <= maximumCalories);
 
-      const searchableText = [
-        recipe.title,
-        recipe.description,
-        recipe.category,
-        recipe.difficulty,
-        Array.isArray(recipe.tags) ? recipe.tags.join(" ") : "",
-        ingredients,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return searchableText.includes(query);
+      return (
+        matchesQuery &&
+        matchesTags &&
+        matchesCookingTime &&
+        matchesMinCalories &&
+        matchesMaxCalories
+      );
     });
-  }, [recipes, searchQuery]);
+  }, [
+    recipes,
+    searchQuery,
+    selectedDietaryTags,
+    selectedCookingTimes,
+    minCalories,
+    maxCalories,
+  ]);
+
+  const toggleDietaryTag = (option) => {
+    setSelectedDietaryTags((current) =>
+      current.includes(option)
+        ? current.filter((tag) => tag !== option)
+        : [...current, option],
+    );
+    setPage(1);
+  };
+
+  const toggleCookingTime = (option) => {
+    setSelectedCookingTimes((current) =>
+      current.includes(option)
+        ? current.filter((time) => time !== option)
+        : [...current, option],
+    );
+    setPage(1);
+  };
+
+  const resetFilters = () => {
+    setSearchQuery("");
+    setSelectedDietaryTags([]);
+    setSelectedCookingTimes([]);
+    setMinCalories("");
+    setMaxCalories("");
+    setPage(1);
+  };
+
+  const handleChipClick = (chip) => {
+    if (chip === "All") {
+      resetFilters();
+      return;
+    }
+
+    if (chip === "Low Calorie") {
+      setMaxCalories((current) => (current === "500" ? "" : "500"));
+      setPage(1);
+      return;
+    }
+
+    if (dietaryOptions.includes(chip)) {
+      toggleDietaryTag(chip);
+    }
+  };
+
+  const minRangePercent = Math.min(
+    100,
+    Math.max(0, ((Number(minCalories) || 0) / 800) * 100),
+  );
+  const maxRangePercent = Math.min(
+    100,
+    Math.max(0, ((Number(maxCalories) || 800) / 800) * 100),
+  );
 
   if (loading) {
     return (
@@ -252,19 +429,28 @@ const Recipes = () => {
         </div>
 
         <div className="relative z-10 mb-5 flex gap-3 overflow-x-auto pb-2 xl:flex-wrap xl:overflow-visible xl:pb-0">
-          {filterChips.map((chip, index) => (
-            <button
-              type="button"
-              key={chip}
-              className={`h-[42px] shrink-0 rounded-[8px] border px-6 text-sm font-bold transition ${
-                index === 0
-                  ? "border-[#ed3317] bg-[#ed3317] text-white shadow-[0_10px_18px_rgba(237,51,23,0.22)]"
-                  : "border-[#e6dfd6] bg-white text-[#071739] hover:border-[#ed3317]"
-              }`}
-            >
-              {chip}
-            </button>
-          ))}
+          {filterChips.map((chip) => {
+            const isChipActive =
+              (chip === "All" && !hasActiveFilters) ||
+              selectedDietaryTags.includes(chip) ||
+              (chip === "Low Calorie" && maxCalories === "500");
+
+            return (
+              <button
+                type="button"
+                key={chip}
+                onClick={() => handleChipClick(chip)}
+                className={`h-[42px] shrink-0 rounded-[8px] border px-6 text-sm font-bold transition ${
+                  isChipActive
+                    ? "border-[#ed3317] bg-[#ed3317] text-white shadow-[0_10px_18px_rgba(237,51,23,0.22)]"
+                    : "border-[#e6dfd6] bg-white text-[#071739] hover:border-[#ed3317]"
+                }`}
+                aria-pressed={isChipActive}
+              >
+                {chip}
+              </button>
+            );
+          })}
         </div>
 
         <div className="relative z-10 grid gap-6 xl:grid-cols-[250px_minmax(0,1fr)]">
@@ -275,6 +461,7 @@ const Recipes = () => {
               </h2>
               <button
                 type="button"
+                onClick={resetFilters}
                 className="text-sm font-bold text-[#ed3317] transition hover:text-[#d82b12]"
               >
                 Reset
@@ -298,6 +485,8 @@ const Recipes = () => {
                     >
                       <input
                         type="checkbox"
+                        checked={selectedDietaryTags.includes(option)}
+                        onChange={() => toggleDietaryTag(option)}
                         className="h-4 w-4 rounded border-[#c4cbd5] accent-[#ed3317]"
                       />
                       <span>{option}</span>
@@ -308,19 +497,77 @@ const Recipes = () => {
 
               <div className="border-t border-[#efe7dd] pt-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-sm font-extrabold text-[#071739]">
-                    Calories
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span className="grid h-8 w-8 place-items-center overflow-hidden rounded-full bg-[#fff0e9]">
+                      <img
+                        src={kcalIcon}
+                        alt=""
+                        className="h-8 w-8 object-cover"
+                      />
+                    </span>
+                    <h3 className="text-sm font-extrabold text-[#071739]">
+                      Calories
+                    </h3>
+                  </div>
                   <span className="text-lg font-bold text-[#071739]">v</span>
                 </div>
                 <div className="relative h-4">
-                  <span className="absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[#ed3317]" />
-                  <span className="absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-[#ed3317] bg-white" />
-                  <span className="absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-[#ed3317] bg-white" />
+                  <span className="absolute left-0 right-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[#f1d8d2]" />
+                  <span
+                    className="absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[#ed3317]"
+                    style={{
+                      left: `${Math.min(minRangePercent, maxRangePercent)}%`,
+                      right: `${100 - Math.max(minRangePercent, maxRangePercent)}%`,
+                    }}
+                  />
+                  <span
+                    className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#ed3317] bg-white"
+                    style={{ left: `${minRangePercent}%` }}
+                  />
+                  <span
+                    className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#ed3317] bg-white"
+                    style={{ left: `${maxRangePercent}%` }}
+                  />
                 </div>
-                <div className="mt-2 flex justify-between text-sm font-semibold text-[#4c5669]">
-                  <span>0 kcal</span>
-                  <span>800+ kcal</span>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-bold text-[#6a7281]">
+                      Min
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="800"
+                      value={minCalories}
+                      onChange={(e) => {
+                        setMinCalories(e.target.value);
+                        setPage(1);
+                      }}
+                      placeholder="0"
+                      className="h-10 w-full rounded-[8px] border border-[#e6dfd6] bg-[#fffaf5] px-3 text-sm font-bold text-[#071739] outline-none transition placeholder:text-[#9aa2af] focus:border-[#ed3317] focus:ring-2 focus:ring-[#ffddd6]"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-bold text-[#6a7281]">
+                      Max
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="800"
+                      value={maxCalories}
+                      onChange={(e) => {
+                        setMaxCalories(e.target.value);
+                        setPage(1);
+                      }}
+                      placeholder="800+"
+                      className="h-10 w-full rounded-[8px] border border-[#e6dfd6] bg-[#fffaf5] px-3 text-sm font-bold text-[#071739] outline-none transition placeholder:text-[#9aa2af] focus:border-[#ed3317] focus:ring-2 focus:ring-[#ffddd6]"
+                    />
+                  </label>
+                </div>
+                <div className="mt-2 flex justify-between text-xs font-semibold text-[#4c5669]">
+                  <span>{minCalories || 0} kcal</span>
+                  <span>{maxCalories || "800+"} kcal</span>
                 </div>
               </div>
 
@@ -339,6 +586,8 @@ const Recipes = () => {
                     >
                       <input
                         type="checkbox"
+                        checked={selectedCookingTimes.includes(option)}
+                        onChange={() => toggleCookingTime(option)}
                         className="h-4 w-4 rounded border-[#c4cbd5] accent-[#ed3317]"
                       />
                       <span>{option}</span>
@@ -349,6 +598,7 @@ const Recipes = () => {
 
               <button
                 type="button"
+                onClick={() => setPage(1)}
                 className="h-[50px] w-full rounded-[8px] bg-[#ed3317] text-base font-extrabold text-white shadow-[0_12px_24px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12]"
               >
                 Apply Filters
@@ -360,6 +610,7 @@ const Recipes = () => {
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredRecipes.map((recipe) => {
                 const tags = getRecipeTags(recipe);
+                const favorite = isFavorite(recipe);
 
                 return (
                   <Link
@@ -374,9 +625,27 @@ const Recipes = () => {
                         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         loading="lazy"
                       />
-                      <span className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white text-2xl leading-none text-[#071739] shadow-md">
-                        {"\u2661"}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          toggleFavorite(recipe);
+                        }}
+                        className={`absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full text-2xl leading-none shadow-md transition ${
+                          favorite
+                            ? "bg-[#ed3317] text-white"
+                            : "bg-white text-[#071739] hover:text-[#ed3317]"
+                        }`}
+                        aria-label={
+                          favorite
+                            ? `Remove ${recipe.title} from favorites`
+                            : `Add ${recipe.title} to favorites`
+                        }
+                        aria-pressed={favorite}
+                      >
+                        {favorite ? "\u2665" : "\u2661"}
+                      </button>
                     </div>
 
                     <div className="p-4">
@@ -443,7 +712,7 @@ const Recipes = () => {
               </div>
             )}
 
-            {pagination && !searchQuery.trim() && (
+            {pagination && !hasActiveFilters && (
               <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
                 <button
                   disabled={!pagination.hasPrevPage}

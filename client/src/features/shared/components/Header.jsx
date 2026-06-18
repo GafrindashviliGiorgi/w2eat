@@ -4,22 +4,22 @@ import logo from "../../../../design/logo.png";
 
 const navLinkClass = ({ isActive }) =>
   [
-    "group relative inline-flex h-11 items-center rounded-full px-4 text-sm font-extrabold text-white/90",
-    "transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white/18 hover:text-white",
-    "after:absolute after:bottom-1.5 after:left-4 after:h-[2px] after:w-0 after:rounded-full after:bg-white",
+    "group relative inline-flex h-11 items-center rounded-full px-5 text-[15px] font-black uppercase tracking-[0.04em]",
+    "transition-all duration-300 ease-in-out hover:-translate-y-0.5",
+    "after:absolute after:bottom-1.5 after:left-5 after:h-[2px] after:w-0 after:rounded-full",
     "after:transition-all after:duration-300 after:ease-in-out hover:after:w-[calc(100%-2rem)]",
     isActive
-      ? "bg-white text-[#c73510] shadow-[0_12px_26px_rgba(86,27,5,0.20)] after:bg-[#f06b1f] after:w-[calc(100%-2rem)]"
-      : "",
+      ? "bg-white text-[#9f2f0c] shadow-[0_12px_26px_rgba(86,27,5,0.22)] after:left-5 after:bg-[#f06b1f] after:w-[calc(100%-2.5rem)]"
+      : "text-white drop-shadow-[0_1px_1px_rgba(86,27,5,0.22)] hover:bg-white/22 hover:text-white after:bg-white",
   ].join(" ");
 
 const actionLinkClass = ({ isActive }) =>
   [
-    "inline-flex h-11 items-center justify-center rounded-full border px-5 text-sm font-extrabold",
+    "inline-flex h-11 items-center justify-center rounded-full border px-6 text-[15px] font-black uppercase tracking-[0.04em]",
     "transition-all duration-300 ease-in-out hover:-translate-y-0.5",
     isActive
       ? "border-white bg-white text-[#c73510] shadow-[0_12px_26px_rgba(86,27,5,0.22)]"
-      : "border-white/45 bg-white/15 text-white shadow-sm hover:border-white hover:bg-white hover:text-[#c73510] hover:shadow-[0_12px_26px_rgba(86,27,5,0.20)]",
+      : "border-white/55 bg-white/18 text-white shadow-sm drop-shadow-[0_1px_1px_rgba(86,27,5,0.22)] hover:border-white hover:bg-white hover:text-[#c73510] hover:shadow-[0_12px_26px_rgba(86,27,5,0.20)] hover:drop-shadow-none",
   ].join(" ");
 
 const Header = () => {
@@ -39,11 +39,11 @@ const Header = () => {
           className="group flex min-w-0 shrink-0 items-center bg-transparent p-0 shadow-none outline-none transition-all duration-300 ease-in-out hover:scale-[1.025]"
           aria-label="W2Eat home"
         >
-          <span className="flex h-14 w-[170px] shrink-0 items-center justify-start self-center bg-transparent p-0 shadow-none outline-none ring-0 transition-all duration-300 ease-in-out sm:w-[200px]">
+          <span className="relative flex h-14 w-[170px] shrink-0 items-center justify-start self-center bg-transparent p-0 shadow-none outline-none ring-0 transition-all duration-300 ease-in-out sm:w-[200px]">
             <img
               src={logo}
               alt="W2Eat"
-              className="h-full w-full origin-left -translate-x-[340px] translate-y-0 scale-[4.1] object-contain bg-transparent p-0 shadow-none outline-none transition-all duration-300 ease-in-out sm:-translate-x-[340px] sm:scale-[4.7]"
+              className="absolute left-0 top-[calc(50%+13px)] h-[calc(100%+5px)] w-[calc(100%+5px)] origin-left -translate-x-[340px] -translate-y-1/2 scale-[4.1] object-contain bg-transparent p-0 shadow-none outline-none transition-all duration-300 ease-in-out sm:-translate-x-[340px] sm:scale-[4.7]"
             />
           </span>
         </Link>
@@ -79,7 +79,7 @@ const Header = () => {
                 <span className="grid h-8 w-8 place-items-center rounded-full bg-white text-sm font-black uppercase text-[#d44813]">
                   {(user?.username || user?.email || "U").charAt(0)}
                 </span>
-                <span className="max-w-[180px] truncate text-sm font-extrabold text-white">
+                <span className="max-w-[180px] truncate text-sm font-black tracking-[0.02em] text-white drop-shadow-[0_1px_1px_rgba(86,27,5,0.24)]">
                   {user?.username || user?.email || "Signed in"}
                 </span>
                 {user?.role === "admin" && (
@@ -97,7 +97,7 @@ const Header = () => {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex h-11 items-center justify-center rounded-full bg-[#071739] px-5 text-sm font-extrabold text-white shadow-[0_12px_24px_rgba(86,27,5,0.20)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white hover:text-[#c73510] hover:shadow-[0_14px_30px_rgba(86,27,5,0.24)]"
+                className="inline-flex h-11 items-center justify-center rounded-full bg-[#071739] px-6 text-[15px] font-black uppercase tracking-[0.04em] text-white shadow-[0_12px_24px_rgba(86,27,5,0.20)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white hover:text-[#c73510] hover:shadow-[0_14px_30px_rgba(86,27,5,0.24)]"
               >
                 Logout
               </button>

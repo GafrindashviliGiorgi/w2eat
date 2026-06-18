@@ -23,6 +23,16 @@ const formatLabel = (value) => {
 const getRecipeImage = (recipe) =>
   recipe?.image || recipe?.images?.[0] || defaultPhoto;
 
+const getIdentityValue = (value) => {
+  if (!value) return "";
+
+  if (typeof value === "object") {
+    return String(value._id || value.id || value.email || value.username || "");
+  }
+
+  return String(value);
+};
+
 const SectionIcon = ({ children, color = "#2e9f38" }) => (
   <span
     className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-[#f3fbeb]"
@@ -174,6 +184,12 @@ const RecipeDetails = () => {
   };
 
   const handleDelete = async () => {
+    if (!canManageRecipe) {
+      toast.error("You can only delete your own recipe");
+      setShowConfirm(false);
+      return;
+    }
+
     try {
       setDeleting(true);
 
@@ -279,13 +295,32 @@ const RecipeDetails = () => {
     }
   };
 
+  const currentUserIdentities = [
+    user?._id,
+    user?.id,
+    user?.email,
+    user?.username,
+  ]
+    .map(getIdentityValue)
+    .filter(Boolean);
+  const recipeOwnerIdentities = [
+    recipe?.author,
+    recipe?.user,
+    recipe?.userId,
+    recipe?.creator,
+    recipe?.creatorId,
+    recipe?.createdBy,
+  ]
+    .map(getIdentityValue)
+    .filter(Boolean);
   const isAdmin = user?.role === "admin";
-  const recipeCreatorId =
-    typeof recipe?.creator === "object"
-      ? recipe?.creator?._id
-      : recipe?.creator;
+  const isRecipeOwner =
+    isAuthenticated &&
+    currentUserIdentities.some((identity) =>
+      recipeOwnerIdentities.includes(identity),
+    );
   const canManageRecipe =
-    isAdmin || (isAuthenticated && user?._id === recipeCreatorId);
+    isAuthenticated && (isAdmin || isRecipeOwner);
 
   const ingredients = Array.isArray(recipe?.ingredients)
     ? recipe.ingredients.filter((ingredient) => ingredient?.name)

@@ -985,7 +985,8 @@ const RecipeDetails = () => {
             </h2>
 
             <p className="mb-5 text-base font-semibold text-[#526078]">
-              This action cannot be undone.
+              Are you sure you want to delete this recipe? This action cannot
+              be undone.
             </p>
 
             <div className="flex justify-end gap-2">
@@ -1004,7 +1005,7 @@ const RecipeDetails = () => {
                 className="h-11 rounded-[8px] bg-[#ed3317] px-5 font-extrabold text-white transition hover:bg-[#d82b12] disabled:opacity-60"
                 disabled={deleting}
               >
-                {deleting ? "Deleting..." : "Delete"}
+                {deleting ? "Deleting..." : "Yes, Delete"}
               </button>
             </div>
           </div>

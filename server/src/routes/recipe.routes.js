@@ -71,6 +71,15 @@ const { protect, admin } = require("../middleware/auth.middleware");
  *             type: string
  *         author:
  *           type: string
+ *         creator:
+ *           type: object
+ *           properties:
+ *             _id:
+ *               type: string
+ *             username:
+ *               type: string
+ *             profileImg:
+ *               type: string
  *         ingredients:
  *           type: array
  *           items:

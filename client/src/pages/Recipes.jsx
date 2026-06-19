@@ -10,6 +10,11 @@ import {
 } from "../features/recipes/api/recipeApi";
 import { useFavorites } from "../features/recipes/context/useFavorites";
 import { useLanguage } from "../features/i18n/context/useLanguage";
+import { resolveProfilePicture } from "../features/auth/utils/profilePicture";
+import {
+  getRecipeCreatorName,
+  getRecipeCreatorPicture,
+} from "../features/recipes/utils/recipeCreator";
 
 const cookingTimes = ["Under 15 min", "15 - 30 min", "30 - 45 min", "45+ min"];
 const difficultyOptions = ["easy", "medium", "hard"];
@@ -633,6 +638,11 @@ const Recipes = () => {
               {filteredRecipes.map((recipe) => {
                 const tags = getRecipeTags(recipe);
                 const favorite = isFavorite(recipe);
+                const creatorName =
+                  getRecipeCreatorName(recipe) || t("Community member");
+                const creatorPicture = resolveProfilePicture(
+                  getRecipeCreatorPicture(recipe),
+                );
 
                 return (
                   <article
@@ -674,6 +684,17 @@ const Recipes = () => {
                       <h2 className="line-clamp-2 min-h-[44px] text-[18px] font-extrabold leading-tight text-[#071739]">
                         {recipe.title}
                       </h2>
+
+                      <div className="mt-2 flex min-w-0 items-center gap-2 text-xs font-bold text-[#697184]">
+                        <img
+                          src={creatorPicture}
+                          alt=""
+                          className="h-6 w-6 rounded-full object-cover"
+                        />
+                        <span className="truncate">
+                          {t("By")} {creatorName}
+                        </span>
+                      </div>
 
                       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold text-[#3d465a]">
                         <span className="inline-flex items-center gap-2">

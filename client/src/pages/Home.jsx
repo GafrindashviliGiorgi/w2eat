@@ -10,6 +10,11 @@ import icon1 from "../../design/photoDeatails/icon1.png";
 import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
 import { useFavorites } from "../features/recipes/context/useFavorites";
 import { useLanguage } from "../features/i18n/context/useLanguage";
+import { resolveProfilePicture } from "../features/auth/utils/profilePicture";
+import {
+  getRecipeCreatorName,
+  getRecipeCreatorPicture,
+} from "../features/recipes/utils/recipeCreator";
 
 const benefitItems = [
   {
@@ -233,6 +238,11 @@ const Home = () => {
                 {filteredFavorites.map((recipe) => {
                   const tags = getRecipeTags(recipe);
                   const marker = getRecipeMarker(recipe, tags, t);
+                  const creatorName =
+                    getRecipeCreatorName(recipe) || t("Community member");
+                  const creatorPicture = resolveProfilePicture(
+                    getRecipeCreatorPicture(recipe),
+                  );
 
                   return (
                     <article
@@ -270,6 +280,16 @@ const Home = () => {
                         <h3 className="line-clamp-2 min-h-[56px] text-xl font-extrabold leading-tight text-[#071739]">
                           {recipe.title}
                         </h3>
+                        <div className="mt-2 flex min-w-0 items-center gap-2 text-xs font-bold text-[#697184]">
+                          <img
+                            src={creatorPicture}
+                            alt=""
+                            className="h-6 w-6 rounded-full object-cover"
+                          />
+                          <span className="truncate">
+                            {t("By")} {creatorName}
+                          </span>
+                        </div>
                         <div className="mt-2.5 flex flex-wrap items-center gap-3 text-sm font-semibold text-[#3d465a]">
                           <span className="font-bold text-[#ed3317]">
                             {getRecipeCalories(recipe, t)}

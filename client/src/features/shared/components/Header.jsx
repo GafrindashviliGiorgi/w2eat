@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/useAuth";
 import logo from "../../../../design/logo.png";
-import defaultPhoto from "../../../../design/photoDeatails/defaultPhoto.png";
+import { resolveProfilePicture } from "../../auth/utils/profilePicture";
 
 const navLinkClass = ({ isActive }) =>
   [
@@ -25,7 +25,7 @@ const actionLinkClass = ({ isActive }) =>
 
 const Header = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user, logout, language, setLanguage, t } = useAuth();
+  const { isAuthenticated, user, logout, t } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -74,25 +74,6 @@ const Header = () => {
         </nav>
 
         <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
-          <label className="relative">
-            <span className="sr-only">{t("Change language")}</span>
-            <select
-              value={language}
-              onChange={(event) => setLanguage(event.target.value)}
-              aria-label={t("Change language")}
-              className="h-11 cursor-pointer appearance-none rounded-full border border-white/55 bg-white/18 py-0 pl-4 pr-9 text-sm font-black uppercase tracking-wide text-white outline-none transition hover:bg-white hover:text-[#c73510] focus:ring-2 focus:ring-white/70"
-            >
-              <option value="en" className="text-[#071739]">
-                EN
-              </option>
-              <option value="ka" className="text-[#071739]">
-                GE
-              </option>
-            </select>
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs">
-              ▾
-            </span>
-          </label>
           {isAuthenticated ? (
             <>
               <Link
@@ -101,7 +82,7 @@ const Header = () => {
                 className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-white/75 bg-white text-sm font-black uppercase text-[#d44813] shadow-md md:hidden"
               >
                 <img
-                  src={user?.profileImg || defaultPhoto}
+                  src={resolveProfilePicture(user?.profileImg)}
                   alt=""
                   className="h-full w-full object-cover"
                 />
@@ -112,7 +93,7 @@ const Header = () => {
                 className="hidden items-center gap-3 rounded-full border border-white/35 bg-white/18 px-2.5 py-2 pr-4 shadow-[0_10px_24px_rgba(86,27,5,0.14)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/28 md:flex"
               >
                 <img
-                  src={user?.profileImg || defaultPhoto}
+                  src={resolveProfilePicture(user?.profileImg)}
                   alt=""
                   className="h-9 w-9 rounded-full border-2 border-white/80 object-cover"
                 />

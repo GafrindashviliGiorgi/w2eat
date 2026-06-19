@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { useAuth } from "../features/auth/context/useAuth";
-import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
+import defaultProfilePicture, {
+  hasCustomProfilePicture,
+  resolveProfilePicture,
+} from "../features/auth/utils/profilePicture";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -18,12 +21,14 @@ const ProfileSettings = () => {
   } = useAuth();
   const inputRef = useRef(null);
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(user?.profileImg || defaultPhoto);
+  const [preview, setPreview] = useState(() =>
+    resolveProfilePicture(user?.profileImg),
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
-    if (!file) setPreview(user?.profileImg || defaultPhoto);
+    if (!file) setPreview(resolveProfilePicture(user?.profileImg));
   }, [file, user?.profileImg]);
 
   useEffect(
@@ -74,7 +79,7 @@ const ProfileSettings = () => {
   };
 
   const handleRemovePhoto = async () => {
-    if (!user?.profileImg) return;
+    if (!hasCustomProfilePicture(user?.profileImg)) return;
 
     const confirmed = window.confirm(
       t("Remove your custom profile photo and use the default image?"),
@@ -85,7 +90,7 @@ const ProfileSettings = () => {
       setIsRemoving(true);
       await removeProfilePicture();
       setFile(null);
-      setPreview(defaultPhoto);
+      setPreview(defaultProfilePicture);
       if (inputRef.current) inputRef.current.value = "";
       toast.success(t("Profile picture removed"));
     } catch (error) {
@@ -148,7 +153,11 @@ const ProfileSettings = () => {
                 <button
                   type="button"
                   onClick={handleRemovePhoto}
-                  disabled={!user?.profileImg || isUploading || isRemoving}
+                  disabled={
+                    !hasCustomProfilePicture(user?.profileImg) ||
+                    isUploading ||
+                    isRemoving
+                  }
                   className="rounded-full border-2 border-red-200 px-5 py-2.5 text-sm font-black text-red-600 transition hover:border-red-600 hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {isRemoving ? t("Removing...") : t("Remove Photo")}

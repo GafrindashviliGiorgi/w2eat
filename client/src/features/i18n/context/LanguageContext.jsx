@@ -393,6 +393,9 @@ const ka = {
   "Profile picture removed": "პროფილის სურათი წაიშალა",
   "Profile picture removed successfully": "პროფილის სურათი წარმატებით წაიშალა",
   "Unable to remove profile picture": "პროფილის სურათის წაშლა ვერ მოხერხდა",
+  "Uploaded by:": "ატვირთა:",
+  By: "ავტორი:",
+  "Community member": "საზოგადოების წევრი",
 };
 
 const translations = { en: {}, ka };

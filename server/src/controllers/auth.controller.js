@@ -5,6 +5,7 @@ const {
   uploadImageBuffer,
   deleteUploadedProfileImage,
 } = require("../config/cloudinary.upload");
+const { DEFAULT_PROFILE_PICTURE } = require("../config/profile");
 
 const removeCloudinaryProfileImage = async (imageUrl) => {
   try {
@@ -40,6 +41,7 @@ const register = async (req, res) => {
       username,
       email,
       password,
+      profileImg: DEFAULT_PROFILE_PICTURE,
     });
 
     const token = generateToken(user._id);
@@ -244,7 +246,7 @@ const removeProfilePicture = async (req, res) => {
     const previousProfileImg = req.user.profileImg;
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { profileImg: "" },
+      { profileImg: DEFAULT_PROFILE_PICTURE },
       { new: true, runValidators: true },
     ).select("-password");
 

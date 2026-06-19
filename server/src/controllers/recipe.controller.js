@@ -7,6 +7,39 @@ const {
   uploadImagesArray,
 } = require("../config/cloudinary.upload");
 
+const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
+
+const attachLegacyCreators = async (recipesInput) => {
+  const isArray = Array.isArray(recipesInput);
+  const recipes = isArray ? recipesInput : [recipesInput];
+  const legacyCreatorIds = [
+    ...new Set(
+      recipes
+        .filter((recipe) => !recipe?.creator)
+        .map((recipe) => String(recipe?.author || "").trim())
+        .filter((author) => OBJECT_ID_PATTERN.test(author)),
+    ),
+  ];
+
+  if (legacyCreatorIds.length === 0) return recipesInput;
+
+  const users = await User.find({ _id: { $in: legacyCreatorIds } })
+    .select("username profileImg")
+    .lean();
+  const usersById = new Map(users.map((user) => [String(user._id), user]));
+  const normalizedRecipes = recipes.map((recipe) => {
+    if (recipe?.creator) return recipe;
+
+    const legacyCreator = usersById.get(String(recipe?.author || "").trim());
+    if (!legacyCreator) return recipe;
+
+    const recipeObject = recipe.toObject ? recipe.toObject() : { ...recipe };
+    return { ...recipeObject, creator: legacyCreator };
+  });
+
+  return isArray ? normalizedRecipes : normalizedRecipes[0];
+};
+
 const getIdentityValue = (value) => {
   if (!value) return "";
 
@@ -117,6 +150,7 @@ exports.getAllRecipes = async (req, res) => {
 
     // 📄 Data fetch
     const recipes = await Recipe.find(filter)
+      .populate("creator", "username profileImg")
       .populate({
         path: "comments",
         options: { sort: { createdAt: -1 } },
@@ -128,6 +162,8 @@ exports.getAllRecipes = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNumber);
+
+    const recipesWithCreators = await attachLegacyCreators(recipes);
 
     // 📐 Total pages
     const totalPages = Math.ceil(totalRecipes / limitNumber);
@@ -145,7 +181,7 @@ exports.getAllRecipes = async (req, res) => {
         hasPrevPage: pageNumber > 1,
       },
 
-      data: recipes,
+      data: recipesWithCreators,
     });
   } catch (error) {
     res.status(500).json({
@@ -239,8 +275,9 @@ exports.getAdminDashboard = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(5)
         .select(
-          "title author category image images approvalStatus isPublished createdAt",
+          "title author creator category image images approvalStatus isPublished createdAt",
         )
+        .populate("creator", "username profileImg")
         .lean(),
       Comment.find()
         .sort({ createdAt: -1 })
@@ -332,14 +369,16 @@ exports.getRecipeById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const recipe = await Recipe.findById(id).populate({
-      path: "comments",
-      options: { sort: { createdAt: -1 } },
-      populate: {
-        path: "user",
-        select: "username profileImg",
-      },
-    });
+    const recipe = await Recipe.findById(id)
+      .populate("creator", "username profileImg")
+      .populate({
+        path: "comments",
+        options: { sort: { createdAt: -1 } },
+        populate: {
+          path: "user",
+          select: "username profileImg",
+        },
+      });
 
     if (!recipe) {
       return res.status(404).json({
@@ -355,9 +394,11 @@ exports.getRecipeById = async (req, res) => {
       });
     }
 
+    const recipeWithCreator = await attachLegacyCreators(recipe);
+
     res.status(200).json({
       success: true,
-      data: recipe,
+      data: recipeWithCreator,
     });
   } catch (error) {
     res.status(500).json({
@@ -404,7 +445,7 @@ exports.createRecipe = async (req, res) => {
     }
 
     const isAdmin = req.user?.role === "admin";
-    const recipeAuthor = req.user?._id?.toString() || author;
+    const recipeAuthor = req.user?.username || author;
 
     const imageUrl = image ? await uploadBase64Image(image) : undefined;
     const imagesUrls = await uploadImagesArray(images);
@@ -416,6 +457,7 @@ exports.createRecipe = async (req, res) => {
       image: imageUrl || image,
       images: imagesUrls?.length ? imagesUrls : images,
       author: recipeAuthor,
+      creator: req.user?._id || null,
       ingredients,
       steps,
       cookTime,
@@ -475,7 +517,9 @@ exports.getPendingRecipes = async (req, res) => {
 
     const [recipes, pendingCount, approvedCount, rejectedCount] =
       await Promise.all([
-        Recipe.find(filter).sort({ createdAt: -1 }),
+        Recipe.find(filter)
+          .populate("creator", "username profileImg")
+          .sort({ createdAt: -1 }),
         Recipe.countDocuments({ approvalStatus: "pending" }),
         Recipe.countDocuments({ approvalStatus: "approved" }),
         Recipe.countDocuments({ approvalStatus: "rejected" }),

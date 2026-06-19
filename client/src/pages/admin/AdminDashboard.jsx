@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { getAdminDashboard } from "../../features/recipes/api/recipeApi";
 import { useAuth } from "../../features/auth/context/useAuth";
 import defaultPhoto from "../../../design/photoDeatails/defaultPhoto.png";
+import { resolveProfilePicture } from "../../features/auth/utils/profilePicture";
 import { useLanguage } from "../../features/i18n/context/useLanguage";
 
 const iconPaths = {
@@ -475,7 +476,7 @@ const AdminDashboard = () => {
 
           <div className="mt-auto flex items-center gap-3 rounded-[8px] bg-[#f6f8fb] p-3">
             <img
-              src={user?.profileImg || defaultPhoto}
+              src={resolveProfilePicture(user?.profileImg)}
               alt=""
               className="h-12 w-12 rounded-full object-cover"
             />
@@ -744,7 +745,9 @@ const AdminDashboard = () => {
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
                                 <img
-                                  src={comment.user?.profileImg || defaultPhoto}
+                                  src={resolveProfilePicture(
+                                    comment.user?.profileImg,
+                                  )}
                                   alt=""
                                   className="h-9 w-9 rounded-full object-cover"
                                 />

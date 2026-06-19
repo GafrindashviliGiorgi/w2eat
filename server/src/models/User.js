@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const { DEFAULT_PROFILE_PICTURE } = require("../config/profile");
 
 const userSchema = new mongoose.Schema(
   {
@@ -30,7 +31,7 @@ const userSchema = new mongoose.Schema(
 
     profileImg: {
       type: String,
-      default: "",
+      default: DEFAULT_PROFILE_PICTURE,
       trim: true,
     },
 

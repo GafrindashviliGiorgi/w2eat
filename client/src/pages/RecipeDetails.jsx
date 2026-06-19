@@ -12,8 +12,11 @@ import {
 import { useAuth } from "../features/auth/context/useAuth";
 import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
 import { useLanguage } from "../features/i18n/context/useLanguage";
-
-const DEFAULT_AVATAR = defaultPhoto;
+import { resolveProfilePicture } from "../features/auth/utils/profilePicture";
+import {
+  getRecipeCreatorName,
+  getRecipeCreatorPicture,
+} from "../features/recipes/utils/recipeCreator";
 
 const formatLabel = (value) => {
   if (!value) return "Not specified";
@@ -374,6 +377,10 @@ const RecipeDetails = () => {
   const tags = Array.isArray(recipe?.tags) ? recipe.tags.filter(Boolean) : [];
   const createdAt = formatCommentDate(recipe?.createdAt);
   const updatedAt = formatCommentDate(recipe?.updatedAt);
+  const creatorName = getRecipeCreatorName(recipe) || t("Community member");
+  const creatorPicture = resolveProfilePicture(
+    getRecipeCreatorPicture(recipe),
+  );
 
   if (loading) {
     return (
@@ -498,6 +505,18 @@ const RecipeDetails = () => {
             <h1 className="max-w-[620px] text-[38px] font-extrabold leading-tight text-[#071739] sm:text-[46px]">
               {recipe.title}
             </h1>
+
+            <div className="mt-4 flex items-center gap-3 text-sm font-bold text-[#526078]">
+              <img
+                src={creatorPicture}
+                alt=""
+                className="h-10 w-10 rounded-full border-2 border-[#fff0e9] object-cover shadow-sm"
+              />
+              <p>
+                {t("Uploaded by:")} {" "}
+                <span className="font-black text-[#071739]">{creatorName}</span>
+              </p>
+            </div>
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <span className="text-[22px] font-black tracking-[2px] text-[#f8b422]">
@@ -904,7 +923,9 @@ const RecipeDetails = () => {
             ) : comments.length > 0 ? (
               comments.map((comment) => {
                 const username = comment?.user?.username || "Anonymous";
-                const profileImg = comment?.user?.profileImg || DEFAULT_AVATAR;
+                const profileImg = resolveProfilePicture(
+                  comment?.user?.profileImg,
+                );
                 const commentOwnerId =
                   typeof comment?.user === "object"
                     ? comment?.user?._id

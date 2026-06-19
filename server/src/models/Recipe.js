@@ -28,6 +28,12 @@ const recipeSchema = new mongoose.Schema(
     author: {
       type: String, // ან ObjectId (თუ Users დაამატებ მომავალში)
     },
+    creator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+      index: true,
+    },
 
     // 🧂 ინგრედიენტები
     ingredients: [

@@ -32,7 +32,7 @@ const { protect } = require("../middleware/auth.middleware");
  *           example: mindia
  *         profileImg:
  *           type: string
- *           example: https://cdn-icons-png.flaticon.com/512/149/149071.png
+ *           example: userpfp.avif
  *
  *     Comment:
  *       type: object

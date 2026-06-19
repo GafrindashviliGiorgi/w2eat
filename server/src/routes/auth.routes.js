@@ -45,8 +45,8 @@ const { uploadProfilePicture } = require("../config/cloudinary.upload");
  *           example: test@test.com
  *         profileImg:
  *           type: string
- *           description: Custom avatar URL; empty when the default client image is used
- *           example: ""
+ *           description: Custom avatar URL or the canonical default asset key
+ *           example: userpfp.avif
  *
  *     RegisterRequest:
  *       type: object

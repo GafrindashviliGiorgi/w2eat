@@ -307,16 +307,6 @@ const Recipes = () => {
     );
   }
 
-  if (recipes.length === 0 && !searchQuery.trim()) {
-    return (
-      <div className="min-h-[calc(100vh-72px)] bg-[#fffaf5] px-6 py-14 text-center">
-        <p className="mx-auto max-w-xl rounded-[8px] border border-[#efe7dd] bg-white px-5 py-4 font-semibold text-[#3d465a] shadow-sm">
-          Recipes could not be found.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-[calc(100vh-72px)] w-full overflow-hidden bg-[#fffaf5] text-[#071739]">
       <section className="relative mx-auto w-full max-w-[1440px] px-6 pb-16 pt-10 sm:px-8 lg:px-10">
@@ -735,8 +725,19 @@ const Recipes = () => {
                   No recipes found
                 </h2>
                 <p className="mt-2 text-base font-semibold text-[#4c5669]">
-                  Try searching by recipe name, category, tag, or ingredient.
+                  {hasActiveFilters
+                    ? "Try another search or clear the selected filters."
+                    : "There are no recipes available yet."}
                 </p>
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="mt-5 rounded-[8px] bg-[#ed3317] px-6 py-3 text-sm font-extrabold text-white shadow-[0_10px_18px_rgba(237,51,23,0.22)] transition hover:bg-[#d82b12]"
+                  >
+                    Show all recipes
+                  </button>
+                )}
               </div>
             )}
 

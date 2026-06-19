@@ -9,6 +9,7 @@ import homeIcon3 from "../../design/photoDeatails/homeicon3.png";
 import icon1 from "../../design/photoDeatails/icon1.png";
 import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
 import { useFavorites } from "../features/recipes/context/useFavorites";
+import { useLanguage } from "../features/i18n/context/useLanguage";
 
 const benefitItems = [
   {
@@ -43,7 +44,7 @@ const getRecipeImage = (recipe) =>
 const getRecipeTags = (recipe) =>
   (Array.isArray(recipe?.tags) ? recipe.tags.filter(Boolean) : []).slice(0, 2);
 
-const getRecipeCalories = (recipe) => {
+const getRecipeCalories = (recipe, t) => {
   const directValue =
     recipe?.calories ||
     recipe?.kcal ||
@@ -67,15 +68,15 @@ const getRecipeCalories = (recipe) => {
     .join(" ");
   const match = searchText.match(/(\d+(?:\.\d+)?)\s*(kcal|calories|cal)\b/i);
 
-  return match ? `${match[1]} kcal` : "Fresh";
+  return match ? `${match[1]} kcal` : t("Fresh");
 };
 
-const getRecipeMarker = (recipe, tags) =>
+const getRecipeMarker = (recipe, tags, t) =>
   tags[0] ||
   recipe?.category ||
   (recipe?.difficulty
     ? `${recipe.difficulty.charAt(0).toUpperCase()}${recipe.difficulty.slice(1)}`
-    : "Favorite");
+    : t("Favorite"));
 
 const getRecipeSearchText = (recipe) =>
   [
@@ -92,6 +93,7 @@ const getRecipeSearchText = (recipe) =>
 
 const Home = () => {
   const { favorites, isSyncingFavorites, toggleFavorite } = useFavorites();
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const favoriteSearchQuery = searchQuery.trim().toLowerCase();
 
@@ -111,20 +113,17 @@ const Home = () => {
             <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full">
               <img src={homeIcon2} alt="" className="h-9 w-9 object-cover" />
             </span>
-            Eat smart, live better
+            {t("Eat smart, live better")}
           </div>
 
           <h1 className="max-w-[620px] text-[44px] font-extrabold leading-[1.05] text-[#071739] sm:text-[56px] lg:text-[62px] lg:leading-[1.02]">
-            Find what to eat
-            <br />
-            from what you
-            <br />
-            <span className="text-[#ed3317]">already</span> have.
+            {t("Find what to eat from what you already have.")}
           </h1>
 
           <p className="mt-4 max-w-[540px] text-lg font-semibold leading-[1.5] text-[#3d465a]">
-            Search your ingredients, discover healthy recipes, and fuel your
-            body the right way.
+            {t(
+              "Search your ingredients, discover healthy recipes, and fuel your body the right way.",
+            )}
           </p>
 
           <form
@@ -144,7 +143,7 @@ const Home = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="What's in your fridge?"
+                placeholder={t("What's in your fridge?")}
                 className="min-w-0 flex-1 bg-transparent text-base font-semibold text-[#071739] outline-none placeholder:text-[#657083] sm:text-lg"
               />
             </div>
@@ -153,14 +152,14 @@ const Home = () => {
               type="submit"
               className="mx-4 mb-4 h-11 rounded-[10px] bg-[#ed3317] px-6 text-sm font-extrabold text-white shadow-[0_9px_22px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12] sm:my-0 sm:w-[154px] sm:whitespace-nowrap"
             >
-              Search Recipes
+              {t("Search Recipes")}
             </button>
           </form>
 
           <p className="relative z-30 mt-3 inline-block w-fit rounded-full bg-[#fffaf5]/95 pr-4 text-sm font-extrabold text-gray-900 sm:text-base">
-            Try:{" "}
+            {t("Try:")} {" "}
             <span className="font-semibold text-green-950">
-              Chicken, Avocado, Rice, Broccoli, Eggs, Oats
+              {t("Chicken, Avocado, Rice, Broccoli, Eggs, Oats")}
             </span>
           </p>
         </div>
@@ -192,10 +191,10 @@ const Home = () => {
               </div>
               <div>
                 <h3 className="text-base font-extrabold leading-tight text-[#071739]">
-                  {item.title}
+                  {t(item.title)}
                 </h3>
                 <p className="mt-1 text-sm font-semibold text-[#4c5669]">
-                  {item.description}
+                  {t(item.description)}
                 </p>
               </div>
               {index !== benefitItems.length - 1 && (
@@ -209,7 +208,7 @@ const Home = () => {
       <section className="mx-auto max-w-[1280px] px-6 pb-16 pt-5 sm:px-8 lg:px-8">
         <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="relative text-3xl font-extrabold leading-tight text-[#071739] sm:text-[34px]">
-            Your Favorite <span className="text-[#ed3317]">Recipes</span>
+            {t("Your Favorite Recipes")}
             <img
               src={homeIcon2}
               alt=""
@@ -220,7 +219,7 @@ const Home = () => {
             to="/recipes"
             className="inline-flex items-center gap-3 self-start text-base font-extrabold text-[#ed3317] transition hover:text-[#d82b12] sm:self-auto"
           >
-            Find more recipes
+            {t("Find more recipes")}
             <span className="grid h-9 w-9 place-items-center rounded-full border border-[#ffb3a5] bg-white text-lg shadow-sm">
               -&gt;
             </span>
@@ -233,7 +232,7 @@ const Home = () => {
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
                 {filteredFavorites.map((recipe) => {
                   const tags = getRecipeTags(recipe);
-                  const marker = getRecipeMarker(recipe, tags);
+                  const marker = getRecipeMarker(recipe, tags, t);
 
                   return (
                     <article
@@ -252,12 +251,12 @@ const Home = () => {
                         <span className="absolute left-4 top-4 rounded-full bg-[#253243] px-3 py-1.5 text-xs font-extrabold text-white">
                           {recipe.cookTime
                             ? `${recipe.cookTime} min`
-                            : "Fresh"}
+                            : t("Fresh")}
                         </span>
                         <button
                           type="button"
                           onClick={() => toggleFavorite(recipe)}
-                          aria-label={`Remove ${recipe.title} from favorites`}
+                          aria-label={t("Remove from favorites")}
                           className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white text-lg font-bold text-[#ed3317] shadow-md transition hover:bg-[#fff0e9]"
                         >
                           <span aria-hidden="true">&#9829;</span>
@@ -273,13 +272,13 @@ const Home = () => {
                         </h3>
                         <div className="mt-2.5 flex flex-wrap items-center gap-3 text-sm font-semibold text-[#3d465a]">
                           <span className="font-bold text-[#ed3317]">
-                            {getRecipeCalories(recipe)}
+                            {getRecipeCalories(recipe, t)}
                           </span>
                           <span className="h-5 w-px bg-[#d8d0c7]" />
                           <span className="text-[#4f8b16]">{marker}</span>
                         </div>
                         <div className="mt-2.5 flex flex-wrap gap-2">
-                          {(tags.length ? tags : ["Favorite"]).map(
+                          {(tags.length ? tags : [t("Favorite")]).map(
                             (tag, index) => (
                               <span
                                 key={`${recipe._id || recipe.id}-${tag}`}
@@ -302,10 +301,10 @@ const Home = () => {
             ) : (
               <div className="rounded-[10px] border border-dashed border-[#edcfc7] bg-white px-6 py-10 text-center shadow-[0_16px_38px_rgba(7,23,57,0.06)]">
                 <h3 className="text-xl font-extrabold text-[#071739]">
-                  No recipes found
+                  {t("No recipes found")}
                 </h3>
                 <p className="mt-2 text-base font-semibold text-[#4c5669]">
-                  Try another recipe title, category, cuisine, or tag.
+                  {t("Try another recipe title, category, cuisine, or tag.")}
                 </p>
               </div>
             )}
@@ -313,7 +312,7 @@ const Home = () => {
             {filteredFavorites.length > 0 && (
               <Link
                 to="/recipes"
-                aria-label="Find more recipes"
+                aria-label={t("Find more recipes")}
                 className="absolute -right-6 top-1/2 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-white text-xl font-bold text-[#ed3317] shadow-[0_14px_35px_rgba(7,23,57,0.15)] transition hover:text-[#d82b12] xl:grid"
               >
                 -&gt;
@@ -323,16 +322,18 @@ const Home = () => {
         ) : isSyncingFavorites ? (
           <div className="rounded-[10px] border border-dashed border-[#edcfc7] bg-white px-6 py-10 text-center shadow-[0_16px_38px_rgba(7,23,57,0.06)]">
             <h3 className="text-xl font-extrabold text-[#071739]">
-              Loading favorite recipes...
+              {t("Loading favorite recipes...")}
             </h3>
           </div>
         ) : (
           <div className="rounded-[10px] border border-dashed border-[#edcfc7] bg-white px-6 py-10 text-center shadow-[0_16px_38px_rgba(7,23,57,0.06)]">
             <h3 className="text-xl font-extrabold text-[#071739]">
-              No favorite recipes yet!
+              {t("No favorite recipes yet!")}
             </h3>
             <p className="mt-2 text-base font-semibold text-[#4c5669]">
-              Tap the heart on recipes you like and they will appear here.
+              {t(
+                "Tap the heart on recipes you like and they will appear here.",
+              )}
             </p>
           </div>
         )}

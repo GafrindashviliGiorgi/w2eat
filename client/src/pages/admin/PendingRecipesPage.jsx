@@ -6,20 +6,21 @@ import {
   rejectRecipe,
 } from "../../features/recipes/api/recipeApi";
 import defaultPhoto from "../../../design/photoDeatails/defaultPhoto.png";
+import { useLanguage } from "../../features/i18n/context/useLanguage";
 
-const formatDate = (value) => {
+const formatDate = (value, language) => {
   if (!value) return ["Not available", ""];
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return ["Not available", ""];
 
   return [
-    date.toLocaleDateString("en-US", {
+    date.toLocaleDateString(language === "ka" ? "ka-GE" : "en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     }),
-    date.toLocaleTimeString("en-US", {
+    date.toLocaleTimeString(language === "ka" ? "ka-GE" : "en-US", {
       hour: "2-digit",
       minute: "2-digit",
     }),
@@ -66,6 +67,7 @@ const statusStyles = {
 };
 
 const PendingRecipesPage = () => {
+  const { t, language } = useLanguage();
   const [recipes, setRecipes] = useState([]);
   const [statusCounts, setStatusCounts] = useState({
     pending: 0,
@@ -144,7 +146,7 @@ const PendingRecipesPage = () => {
         pending: Math.max(prev.pending - 1, 0),
         approved: prev.approved + 1,
       }));
-      toast.success("Recipe approved and published");
+      toast.success(t("Recipe approved and published"));
     } catch (err) {
       toast.error(err.message || "Failed to approve recipe");
     } finally {
@@ -162,7 +164,7 @@ const PendingRecipesPage = () => {
         pending: Math.max(prev.pending - 1, 0),
         rejected: prev.rejected + 1,
       }));
-      toast.success("Recipe request rejected");
+      toast.success(t("Recipe request rejected"));
     } catch (err) {
       toast.error(err.message || "Failed to reject recipe");
     } finally {
@@ -171,8 +173,6 @@ const PendingRecipesPage = () => {
   };
 
   const isActionLoading = (id, type) => action?.id === id && action?.type === type;
-  const activeStatus = statusStyles[selectedStatus] || statusStyles.pending;
-
   return (
     <div className="min-h-[calc(100vh-88px)] bg-[#f7f8fb] text-[#111827]">
       <div className="grid min-h-[calc(100vh-88px)] lg:grid-cols-[260px_minmax(0,1fr)]">
@@ -187,7 +187,7 @@ const PendingRecipesPage = () => {
               </svg>
             </span>
             <h1 className="text-xl font-black tracking-tight text-[#111827]">
-              Recipe Approval
+              {t("Recipe Approval")}
             </h1>
           </div>
 
@@ -215,7 +215,7 @@ const PendingRecipesPage = () => {
                       }
                     />
                   </svg>
-                  {option.sidebarLabel}
+                  {t(option.sidebarLabel)}
                 </span>
                 <span className="rounded-full bg-white px-2.5 py-1 text-xs text-[#6b7280] shadow-sm">
                   {statusCounts[option.value] || 0}
@@ -229,10 +229,12 @@ const PendingRecipesPage = () => {
           <div className="mb-8 flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
             <div>
               <h2 className="text-[30px] font-black leading-tight text-[#111827]">
-                Recipe Requests
+                {t("Recipe Requests")}
               </h2>
               <p className="mt-2 text-base font-semibold text-[#5f6776]">
-                Review and decide whether to approve submitted recipe uploads.
+                {t(
+                  "Review and decide whether to approve submitted recipe uploads.",
+                )}
               </p>
             </div>
 
@@ -246,7 +248,7 @@ const PendingRecipesPage = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search requests..."
+                  placeholder={t("Search requests...")}
                   className="min-w-0 flex-1 bg-transparent text-sm font-bold text-[#111827] outline-none placeholder:text-[#8a93a3]"
                 />
               </label>
@@ -260,7 +262,7 @@ const PendingRecipesPage = () => {
                   onChange={(event) => setCategoryFilter(event.target.value)}
                   className="bg-transparent text-sm font-extrabold text-[#111827] outline-none"
                 >
-                  <option value="">All categories</option>
+                  <option value="">{t("All categories")}</option>
                   {categories.map((category) => (
                     <option key={category} value={category}>
                       {category}
@@ -284,7 +286,7 @@ const PendingRecipesPage = () => {
                       : "text-[#4b5563] hover:bg-[#f7f8fb] hover:text-[#111827]"
                   }`}
                 >
-                  {option.label}
+                  {t(option.label)}
                   <span className="ml-2 rounded-full bg-[#eef0f4] px-2 py-1 text-xs text-[#6b7280]">
                     {statusCounts[option.value] || 0}
                   </span>
@@ -301,11 +303,11 @@ const PendingRecipesPage = () => {
               <table className="min-w-[980px] w-full border-collapse">
                 <thead>
                   <tr className="border-b border-[#e5e7eb] bg-[#fbfcfe] text-left text-xs font-black uppercase tracking-[0.08em] text-[#657083]">
-                    <th className="px-8 py-5">Product</th>
-                    <th className="px-6 py-5">Requested By</th>
-                    <th className="px-6 py-5">Date</th>
-                    <th className="px-6 py-5">Status</th>
-                    <th className="px-8 py-5 text-right">Actions</th>
+                    <th className="px-8 py-5">{t("Product")}</th>
+                    <th className="px-6 py-5">{t("Requested By")}</th>
+                    <th className="px-6 py-5">{t("Date")}</th>
+                    <th className="px-6 py-5">{t("Status")}</th>
+                    <th className="px-8 py-5 text-right">{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#e5e7eb]">
@@ -313,7 +315,7 @@ const PendingRecipesPage = () => {
                     <tr>
                       <td colSpan={5} className="px-8 py-16 text-center">
                         <p className="text-base font-extrabold text-[#111827]">
-                          Loading {activeStatus.label.toLowerCase()} recipes...
+                          {t("Loading requests...")}
                         </p>
                       </td>
                     </tr>
@@ -322,17 +324,20 @@ const PendingRecipesPage = () => {
                       <td colSpan={5} className="px-8 py-16 text-center">
                         <div className="mx-auto max-w-md rounded-[8px] border border-dashed border-[#f4c7ac] bg-[#fffaf5] px-6 py-8">
                           <h3 className="text-lg font-black text-[#111827]">
-                            No requests found
+                            {t("No requests found")}
                           </h3>
                           <p className="mt-2 text-sm font-semibold text-[#657083]">
-                            {activeStatus.label} recipe requests will appear here.
+                            {t("Recipe requests will appear here.")}
                           </p>
                         </div>
                       </td>
                     </tr>
                   ) : (
                     filteredRecipes.map((recipe) => {
-                      const [date, time] = formatDate(recipe.createdAt);
+                      const [date, time] = formatDate(
+                        recipe.createdAt,
+                        language,
+                      );
                       const requesterName = getRequesterName(recipe);
                       const requesterEmail = getRequesterEmail(recipe);
                       const recipeStatus = recipe.approvalStatus || selectedStatus;
@@ -358,7 +363,7 @@ const PendingRecipesPage = () => {
                                   {recipe.title}
                                 </p>
                                 <p className="mt-1 text-sm font-bold text-[#657083]">
-                                  {recipe.category || "Uncategorized"}
+                                  {recipe.category || t("Uncategorized")}
                                 </p>
                               </div>
                             </div>
@@ -394,7 +399,7 @@ const PendingRecipesPage = () => {
                                 <circle cx="12" cy="12" r="9" />
                                 <path d={rowStatus.icon} />
                               </svg>
-                              {rowStatus.label}
+                              {t(rowStatus.label)}
                             </span>
                           </td>
                           <td className="px-8 py-5">
@@ -410,8 +415,8 @@ const PendingRecipesPage = () => {
                                     <path d="m5 12 4 4L19 6" />
                                   </svg>
                                   {isActionLoading(recipe._id, "approve")
-                                    ? "Approving"
-                                    : "Approve"}
+                                    ? t("Approving")
+                                    : t("Approve")}
                                 </button>
                                 <button
                                   type="button"
@@ -425,14 +430,14 @@ const PendingRecipesPage = () => {
                                     <path d="m15 9-6 6" />
                                   </svg>
                                   {isActionLoading(recipe._id, "reject")
-                                    ? "Rejecting"
-                                    : "Reject"}
+                                    ? t("Rejecting")
+                                    : t("Reject")}
                                 </button>
                               </div>
                             ) : (
                               <div className="flex justify-end">
                                 <span className="inline-flex h-10 items-center rounded-[8px] bg-[#f4f6fa] px-4 text-sm font-black text-[#657083]">
-                                  Reviewed
+                                  {t("Reviewed")}
                                 </span>
                               </div>
                             )}
@@ -447,14 +452,15 @@ const PendingRecipesPage = () => {
 
             <div className="flex flex-col gap-4 border-t border-[#e5e7eb] px-8 py-5 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm font-semibold text-[#4b5563]">
-                Showing {filteredRecipes.length ? 1 : 0} to{" "}
-                {filteredRecipes.length} of {filteredRecipes.length} requests
+                {t("Showing")} {filteredRecipes.length ? 1 : 0} {t("to")} {" "}
+                {filteredRecipes.length} {t("of")} {filteredRecipes.length} {" "}
+                {t("requests")}
               </p>
               <div className="flex items-center justify-center gap-3">
                 <button
                   type="button"
                   className="grid h-10 w-10 place-items-center rounded-[8px] bg-[#f4f6fa] text-[#9aa2af]"
-                  aria-label="Previous page"
+                  aria-label={t("Previous page")}
                 >
                   {"<"}
                 </button>
@@ -467,7 +473,7 @@ const PendingRecipesPage = () => {
                 <button
                   type="button"
                   className="grid h-10 w-10 place-items-center rounded-[8px] bg-[#f4f6fa] text-[#9aa2af]"
-                  aria-label="Next page"
+                  aria-label={t("Next page")}
                 >
                   {">"}
                 </button>

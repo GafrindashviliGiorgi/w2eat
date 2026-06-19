@@ -8,6 +8,7 @@ import icon1 from "../../../../design/photoDeatails/icon1.png";
 import icon2 from "../../../../design/photoDeatails/icon2.png";
 import leaf from "../../../../design/photoDeatails/leaf.png";
 import signinSignupDetail from "../../../../design/photoDeatails/singinSingupDtl.png";
+import { useLanguage } from "../../i18n/context/useLanguage";
 
 const featureItems = [
   {
@@ -41,6 +42,7 @@ const RegisterForm = () => {
   });
   const { register: registerWithApi } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const onSubmit = async (data) => {
     try {
@@ -59,10 +61,8 @@ const RegisterForm = () => {
         <section className="relative min-h-[420px] lg:min-h-[560px]">
           <div className="relative z-10 max-w-lg pt-1 sm:pt-5 lg:pt-8">
             <h1 className="max-w-[500px] text-4xl font-bold leading-tight text-[#071739] sm:text-[44px] lg:text-[52px]">
-              Start your
-              <br />
               <span className="text-[#ed3317]">
-                better eating
+                {t("Start your better eating")}
                 <img
                   src={leaf}
                   alt=""
@@ -71,8 +71,9 @@ const RegisterForm = () => {
               </span>
             </h1>
             <p className="mt-4 max-w-[390px] text-base leading-7 text-[#283247]">
-              Create an account to discover healthy, personalized recipes that
-              fit your goals.
+              {t(
+                "Create an account to discover healthy, personalized recipes that fit your goals.",
+              )}
             </p>
 
             <div className="mt-7 grid gap-5 sm:max-w-[430px]">
@@ -89,10 +90,10 @@ const RegisterForm = () => {
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-[#071739]">
-                      {item.title}
+                      {t(item.title)}
                     </h3>
                     <p className="mt-1 max-w-[300px] text-sm leading-6 text-[#3d465a]">
-                      {item.description}
+                      {t(item.description)}
                     </p>
                   </div>
                 </div>
@@ -114,33 +115,33 @@ const RegisterForm = () => {
           >
             <div className="text-center">
               <h2 className="text-2xl font-bold text-[#071739]">
-                Create your account
+                {t("Create your account")}
               </h2>
               <p className="mt-2 text-sm text-[#465066]">
-                Enter your details to start your healthy recipe journey
+                {t("Enter your details to start your healthy recipe journey")}
               </p>
             </div>
 
             {errors.root && (
               <p className="rounded-xl bg-red-50 px-4 py-3 text-center text-sm font-medium text-red-600">
-                {errors.root.message}
+                {t(errors.root.message)}
               </p>
             )}
 
             {/* Name */}
             <div>
               <label className="mb-2 block text-sm font-semibold text-[#071739]">
-                Name
+                {t("Name")}
               </label>
               <input
                 type="text"
-                placeholder="Name"
+                placeholder={t("Name")}
                 {...register("username")}
                 className="w-full rounded-xl border border-[#d9dde6] bg-white px-4 py-2.5 text-[#071739] outline-none transition placeholder:text-[#8a92a3] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10"
               />
               {errors.username && (
                 <p className="mt-2 text-sm text-red-500">
-                  {errors.username.message}
+                  {t(errors.username.message)}
                 </p>
               )}
             </div>
@@ -148,17 +149,17 @@ const RegisterForm = () => {
             {/* Email */}
             <div>
               <label className="mb-2 block text-sm font-semibold text-[#071739]">
-                Email address
+                {t("Email address")}
               </label>
               <input
                 type="email"
-                placeholder="Email"
+                placeholder={t("Email")}
                 {...register("email")}
                 className="w-full rounded-xl border border-[#d9dde6] bg-white px-4 py-2.5 text-[#071739] outline-none transition placeholder:text-[#8a92a3] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10"
               />
               {errors.email && (
                 <p className="mt-2 text-sm text-red-500">
-                  {errors.email.message}
+                  {t(errors.email.message)}
                 </p>
               )}
             </div>
@@ -166,17 +167,17 @@ const RegisterForm = () => {
             {/* Password */}
             <div>
               <label className="mb-2 block text-sm font-semibold text-[#071739]">
-                Password
+                {t("Password")}
               </label>
               <input
                 type="password"
-                placeholder="Password"
+                placeholder={t("Password")}
                 {...register("password")}
                 className="w-full rounded-xl border border-[#d9dde6] bg-white px-4 py-2.5 text-[#071739] outline-none transition placeholder:text-[#8a92a3] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10"
               />
               {errors.password && (
                 <p className="mt-2 text-sm text-red-500">
-                  {errors.password.message}
+                  {t(errors.password.message)}
                 </p>
               )}
             </div>
@@ -184,17 +185,17 @@ const RegisterForm = () => {
             {/* Confirm Password */}
             <div>
               <label className="mb-2 block text-sm font-semibold text-[#071739]">
-                Confirm Password
+                {t("Confirm Password")}
               </label>
               <input
                 type="password"
-                placeholder="Confirm Password"
+                placeholder={t("Confirm Password")}
                 {...register("confirmPassword")}
                 className="w-full rounded-xl border border-[#d9dde6] bg-white px-4 py-2.5 text-[#071739] outline-none transition placeholder:text-[#8a92a3] focus:border-[#ed3317] focus:ring-4 focus:ring-[#ed3317]/10"
               />
               {errors.confirmPassword && (
                 <p className="mt-2 text-sm text-red-500">
-                  {errors.confirmPassword.message}
+                  {t(errors.confirmPassword.message)}
                 </p>
               )}
             </div>
@@ -205,24 +206,24 @@ const RegisterForm = () => {
               disabled={isSubmitting}
               className="w-full rounded-xl bg-[#ed3317] py-3 text-base font-bold text-white shadow-[0_12px_30px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? "Loading..." : "Register"}
+              {isSubmitting ? t("Loading...") : t("Register")}
             </button>
 
             <p className="text-center text-sm text-[#5f6676]">
-              Already have an account?{" "}
+              {t("Already have an account?")} {" "}
               <Link
                 to="/login"
                 className="font-semibold text-[#ed3317] hover:underline"
               >
-                Login
+                {t("Login")}
               </Link>
             </p>
           </form>
 
           <p className="relative z-20 rounded-full bg-[#fffaf4]/90 px-4 py-2 text-center text-xs text-[#596174] shadow-sm sm:text-sm">
-            Your data is safe with us.{" "}
+            {t("Your data is safe with us.")} {" "}
             <span className="font-semibold text-[#4f8b16]">
-              We never share your information.
+              {t("We never share your information.")}
             </span>
           </p>
         </section>

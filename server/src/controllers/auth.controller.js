@@ -1,6 +1,18 @@
 const ms = require("ms");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const {
+  uploadImageBuffer,
+  deleteUploadedProfileImage,
+} = require("../config/cloudinary.upload");
+
+const removeCloudinaryProfileImage = async (imageUrl) => {
+  try {
+    await deleteUploadedProfileImage(imageUrl);
+  } catch (error) {
+    console.warn("Unable to delete old Cloudinary profile image:", error.message);
+  }
+};
 
 // helper: generate token
 const generateToken = (userId) => {
@@ -185,10 +197,84 @@ const changePassword = async (req, res) => {
   }
 };
 
+// UPDATE PROFILE PICTURE
+const updateProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Profile picture is required",
+      });
+    }
+
+    const previousProfileImg = req.user.profileImg;
+    const profileImg = await uploadImageBuffer(req.file);
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { profileImg },
+      { new: true, runValidators: true },
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (previousProfileImg && previousProfileImg !== profileImg) {
+      await removeCloudinaryProfileImage(previousProfileImg);
+    }
+
+    return res.status(200).json({
+      message: "Profile picture updated successfully",
+      user,
+    });
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({
+      message:
+        error.statusCode && error.statusCode < 500
+          ? error.message
+          : "Unable to update profile picture",
+    });
+  }
+};
+
+// REMOVE PROFILE PICTURE
+const removeProfilePicture = async (req, res) => {
+  try {
+    const previousProfileImg = req.user.profileImg;
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { profileImg: "" },
+      { new: true, runValidators: true },
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (previousProfileImg) {
+      await removeCloudinaryProfileImage(previousProfileImg);
+    }
+
+    return res.status(200).json({
+      message: "Profile picture removed successfully",
+      user,
+    });
+  } catch {
+    return res.status(500).json({
+      message: "Unable to remove profile picture",
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   logout,
   getMe,
   changePassword,
+  updateProfilePicture,
+  removeProfilePicture,
 };

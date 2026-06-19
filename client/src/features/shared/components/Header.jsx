@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/useAuth";
 import logo from "../../../../design/logo.png";
+import defaultPhoto from "../../../../design/photoDeatails/defaultPhoto.png";
 
 const navLinkClass = ({ isActive }) =>
   [
@@ -24,7 +25,7 @@ const actionLinkClass = ({ isActive }) =>
 
 const Header = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, language, setLanguage, t } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -50,65 +51,106 @@ const Header = () => {
 
         <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex">
           <NavLink to="/" className={navLinkClass}>
-            Home
+            {t("Home")}
           </NavLink>
           <NavLink to="/recipes" className={navLinkClass}>
-            Recipes
+            {t("Recipes")}
           </NavLink>
           {isAuthenticated && (
             <NavLink to="/create" className={navLinkClass}>
-              Create Recipe
+              {t("Create Recipe")}
             </NavLink>
           )}
           {user?.role === "admin" && (
             <>
               <NavLink to="/admin" className={navLinkClass}>
-                Admin
+                {t("Admin")}
               </NavLink>
               <NavLink to="/admin/recipe-requests" className={navLinkClass}>
-                Requests
+                {t("Requests")}
               </NavLink>
             </>
           )}
         </nav>
 
         <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
+          <label className="relative">
+            <span className="sr-only">{t("Change language")}</span>
+            <select
+              value={language}
+              onChange={(event) => setLanguage(event.target.value)}
+              aria-label={t("Change language")}
+              className="h-11 cursor-pointer appearance-none rounded-full border border-white/55 bg-white/18 py-0 pl-4 pr-9 text-sm font-black uppercase tracking-wide text-white outline-none transition hover:bg-white hover:text-[#c73510] focus:ring-2 focus:ring-white/70"
+            >
+              <option value="en" className="text-[#071739]">
+                EN
+              </option>
+              <option value="ka" className="text-[#071739]">
+                GE
+              </option>
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs">
+              ▾
+            </span>
+          </label>
           {isAuthenticated ? (
             <>
-              <div className="hidden items-center gap-3 rounded-full border border-white/35 bg-white/18 px-4 py-2 shadow-[0_10px_24px_rgba(86,27,5,0.14)] backdrop-blur md:flex">
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-white text-sm font-black uppercase text-[#d44813]">
-                  {(user?.username || user?.email || "U").charAt(0)}
-                </span>
+              <Link
+                to="/profile/settings"
+                aria-label={t("Profile settings")}
+                className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-white/75 bg-white text-sm font-black uppercase text-[#d44813] shadow-md md:hidden"
+              >
+                <img
+                  src={user?.profileImg || defaultPhoto}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              </Link>
+              <Link
+                to="/profile/settings"
+                aria-label={t("Profile settings")}
+                className="hidden items-center gap-3 rounded-full border border-white/35 bg-white/18 px-2.5 py-2 pr-4 shadow-[0_10px_24px_rgba(86,27,5,0.14)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/28 md:flex"
+              >
+                <img
+                  src={user?.profileImg || defaultPhoto}
+                  alt=""
+                  className="h-9 w-9 rounded-full border-2 border-white/80 object-cover"
+                />
                 <span className="max-w-[180px] truncate text-sm font-black tracking-[0.02em] text-white drop-shadow-[0_1px_1px_rgba(86,27,5,0.24)]">
-                  {user?.username || user?.email || "Signed in"}
+                  {user?.username || user?.email || t("Signed in")}
                 </span>
                 {user?.role === "admin" && (
                   <span className="rounded-full bg-[#071739] px-2.5 py-1 text-[11px] font-black uppercase tracking-wide text-white shadow-sm">
-                    Admin
+                    {t("Admin")}
                   </span>
                 )}
-              </div>
+              </Link>
 
-              <NavLink to="/change-password" className={navLinkClass}>
-                <span className="hidden xl:inline">Password</span>
-                <span className="xl:hidden">Pass</span>
+              <NavLink
+                to="/change-password"
+                className={({ isActive }) =>
+                  `${navLinkClass({ isActive })} hidden xl:inline-flex`
+                }
+              >
+                <span className="hidden xl:inline">{t("Password")}</span>
+                <span className="xl:hidden">{t("Pass")}</span>
               </NavLink>
 
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex h-11 items-center justify-center rounded-full bg-[#071739] px-6 text-[15px] font-black uppercase tracking-[0.04em] text-white shadow-[0_12px_24px_rgba(86,27,5,0.20)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white hover:text-[#c73510] hover:shadow-[0_14px_30px_rgba(86,27,5,0.24)]"
+                className="inline-flex h-11 items-center justify-center rounded-full bg-[#071739] px-3 text-[13px] font-black uppercase tracking-[0.04em] text-white shadow-[0_12px_24px_rgba(86,27,5,0.20)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-white hover:text-[#c73510] hover:shadow-[0_14px_30px_rgba(86,27,5,0.24)] sm:px-6 sm:text-[15px]"
               >
-                Logout
+                {t("Logout")}
               </button>
             </>
           ) : (
             <>
               <NavLink to="/login" className={navLinkClass}>
-                Login
+                {t("Login")}
               </NavLink>
               <NavLink to="/register" className={actionLinkClass}>
-                Register
+                {t("Register")}
               </NavLink>
             </>
           )}
@@ -117,23 +159,23 @@ const Header = () => {
 
       <nav className="mt-3 flex gap-2 overflow-x-auto pb-1 lg:hidden">
         <NavLink to="/" className={navLinkClass}>
-          Home
+          {t("Home")}
         </NavLink>
         <NavLink to="/recipes" className={navLinkClass}>
-          Recipes
+          {t("Recipes")}
         </NavLink>
         {isAuthenticated && (
           <NavLink to="/create" className={navLinkClass}>
-            Create
+            {t("Create")}
           </NavLink>
         )}
         {user?.role === "admin" && (
           <>
             <NavLink to="/admin" className={navLinkClass}>
-              Admin
+              {t("Admin")}
             </NavLink>
             <NavLink to="/admin/recipe-requests" className={navLinkClass}>
-              Requests
+              {t("Requests")}
             </NavLink>
           </>
         )}

@@ -6,6 +6,7 @@ import addRecipeIcon2 from "../../../../design/photoDeatails/addnewRecepiesicon2
 import addRecipeIcon3 from "../../../../design/photoDeatails/addnewRecepiesicon3.png";
 import addRecipeIcon4 from "../../../../design/photoDeatails/addnewRecepiesicon4.png";
 import addRecipeIcon5 from "../../../../design/photoDeatails/addnewRecepiesicon5.png";
+import { useLanguage } from "../../i18n/context/useLanguage";
 
 const INITIAL_FORM = {
   title: "",
@@ -42,6 +43,7 @@ const SectionTitle = ({ icon, title }) => (
 
 const AddRecipeForm = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [form, setForm] = useState(INITIAL_FORM);
   const [categories, setCategories] = useState([]);
 
@@ -162,7 +164,7 @@ const AddRecipeForm = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setMessage("Please select a valid image file");
+      setMessage(t("Please select a valid image file"));
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -185,7 +187,7 @@ const AddRecipeForm = () => {
     if (!files.length) return;
 
     if (files.some((file) => !file.type.startsWith("image/"))) {
-      setMessage("Please select only image files");
+      setMessage(t("Please select only image files"));
       if (filesInputRef.current) filesInputRef.current.value = "";
       return;
     }
@@ -206,7 +208,7 @@ const AddRecipeForm = () => {
         images: base64Images,
       }));
     } catch {
-      setMessage("Failed to process selected images");
+      setMessage(t("Failed to process selected images"));
     }
   };
 
@@ -263,8 +265,8 @@ const AddRecipeForm = () => {
 
       const successMsg =
         user?.role === "admin"
-          ? "✅ Recipe created and published"
-          : "✅ Recipe submitted for admin approval";
+          ? t("Recipe created and published")
+          : t("Recipe submitted for admin approval");
 
       setMessage(successMsg);
 
@@ -274,7 +276,7 @@ const AddRecipeForm = () => {
       if (fileInputRef.current) fileInputRef.current.value = "";
       if (filesInputRef.current) filesInputRef.current.value = "";
     } catch (err) {
-      setMessage(err.message);
+      setMessage(t(err.message));
     } finally {
       setLoading(false);
     }
@@ -285,11 +287,12 @@ const AddRecipeForm = () => {
       <div className="relative z-10 mx-auto max-w-[1360px]">
         <div className="mb-7 max-w-[720px]">
           <h2 className="text-[40px] font-extrabold leading-tight text-[#071739] sm:text-[44px]">
-            Add New Recipe
+            {t("Add New Recipe")}
           </h2>
           <p className="mt-2 text-base font-semibold text-[#4a5568] sm:text-lg">
-            Share your healthy creation with the community and inspire others to
-            eat better.
+            {t(
+              "Share your healthy creation with the community and inspire others to eat better.",
+            )}
           </p>
         </div>
 
@@ -298,17 +301,17 @@ const AddRecipeForm = () => {
           className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.84fr)_286px]"
         >
           <section className={`${panelClass} p-6`}>
-            <SectionTitle icon={addRecipeIcon1} title="Basic Information" />
+            <SectionTitle icon={addRecipeIcon1} title={t("Basic Information")} />
 
             <div className="space-y-5">
               <label className="block">
                 <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
-                  Recipe Title *
+                  {t("Recipe Title")} *
                 </span>
                 <input
                   type="text"
                   name="title"
-                  placeholder="e.g. Grilled Chicken Quinoa Bowl"
+                  placeholder={t("e.g. Grilled Chicken Quinoa Bowl")}
                   value={form.title}
                   onChange={handleChange}
                   className={inputClass}
@@ -318,11 +321,13 @@ const AddRecipeForm = () => {
 
               <label className="block">
                 <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
-                  Description *
+                  {t("Description")} *
                 </span>
                 <textarea
                   name="description"
-                  placeholder="Describe your recipe, key ingredients, benefits, and cooking tips..."
+                  placeholder={t(
+                    "Describe your recipe, key ingredients, benefits, and cooking tips...",
+                  )}
                   value={form.description}
                   onChange={handleChange}
                   className={`${inputClass} min-h-[158px] resize-y`}
@@ -332,12 +337,12 @@ const AddRecipeForm = () => {
 
               <label className="block">
                 <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
-                  Author
+                  {t("Author")}
                 </span>
                 <input
                   type="text"
                   name="author"
-                  placeholder="Author"
+                  placeholder={t("Author")}
                   value={form.author}
                   onChange={handleChange}
                   className={inputClass}
@@ -347,7 +352,7 @@ const AddRecipeForm = () => {
               <div className="grid gap-5 md:grid-cols-3">
                 <label className="block">
                   <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
-                    Cook Time
+                    {t("Cook Time")}
                   </span>
                   <input
                     type="number"
@@ -362,7 +367,7 @@ const AddRecipeForm = () => {
 
                 <label className="block">
                   <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
-                    Servings
+                    {t("Servings")}
                   </span>
                   <input
                     type="number"
@@ -377,7 +382,7 @@ const AddRecipeForm = () => {
 
                 <label className="block">
                   <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
-                    Difficulty
+                    {t("Difficulty")}
                   </span>
                   <select
                     name="difficulty"
@@ -385,9 +390,9 @@ const AddRecipeForm = () => {
                     onChange={handleChange}
                     className={compactInputClass}
                   >
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
+                    <option value="easy">{t("Easy")}</option>
+                    <option value="medium">{t("Medium")}</option>
+                    <option value="hard">{t("Hard")}</option>
                   </select>
                 </label>
               </div>
@@ -395,7 +400,7 @@ const AddRecipeForm = () => {
               <div className="grid gap-5 md:grid-cols-2">
                 <label className="block">
                   <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
-                    Category *
+                    {t("Category")} *
                   </span>
                   <select
                     name="category"
@@ -407,8 +412,8 @@ const AddRecipeForm = () => {
                   >
                     <option value="">
                       {categoriesLoading
-                        ? "Loading categories..."
-                        : "Select a category"}
+                        ? t("Loading categories...")
+                        : t("Select a category")}
                     </option>
                     {categories.map((category) => (
                       <option key={category} value={category}>
@@ -420,12 +425,12 @@ const AddRecipeForm = () => {
 
                 <label className="block">
                   <span className="mb-2.5 block text-sm font-extrabold text-[#071739]">
-                    Tags
+                    {t("Tags")}
                   </span>
                   <input
                     type="text"
                     name="tags"
-                    placeholder="Tags (comma separated)"
+                    placeholder={t("Tags (comma separated)")}
                     value={form.tags}
                     onChange={handleChange}
                     className={inputClass}
@@ -436,7 +441,7 @@ const AddRecipeForm = () => {
           </section>
 
           <section className={`${panelClass} p-6`}>
-            <SectionTitle icon={addRecipeIcon2} title="Ingredients" />
+            <SectionTitle icon={addRecipeIcon2} title={t("Ingredients")} />
 
             <div className="space-y-3">
               {form.ingredients.map((ingredient, index) => (
@@ -446,7 +451,7 @@ const AddRecipeForm = () => {
                 >
                   <input
                     type="text"
-                    placeholder="e.g. Chicken Breast"
+                    placeholder={t("e.g. Chicken Breast")}
                     value={ingredient.name}
                     onChange={(e) =>
                       handleIngredientChange(index, "name", e.target.value)
@@ -455,7 +460,7 @@ const AddRecipeForm = () => {
                   />
                   <input
                     type="text"
-                    placeholder="e.g. 200g"
+                    placeholder={t("e.g. 200g")}
                     value={ingredient.quantity}
                     onChange={(e) =>
                       handleIngredientChange(index, "quantity", e.target.value)
@@ -478,11 +483,11 @@ const AddRecipeForm = () => {
               onClick={addIngredient}
               className="mt-4 flex h-11 w-full items-center justify-center rounded-[8px] border border-dashed border-[#cfd5df] bg-white text-base font-extrabold text-[#4f8b16] transition hover:border-[#4f8b16] hover:bg-[#f6fbef]"
             >
-              + Add Ingredient
+              + {t("Add Ingredient")}
             </button>
 
             <div className="mt-8">
-              <SectionTitle icon={addRecipeIcon3} title="Cooking Steps" />
+              <SectionTitle icon={addRecipeIcon3} title={t("Cooking Steps")} />
               <div className="space-y-3">
                 {form.steps.map((step, index) => (
                   <div
@@ -493,7 +498,7 @@ const AddRecipeForm = () => {
                       type="text"
                       value={step.instruction}
                       onChange={(e) => handleStepChange(index, e.target.value)}
-                      placeholder={`Step ${index + 1}`}
+                      placeholder={`${t("Step")} ${index + 1}`}
                       className={compactInputClass}
                     />
                     <button
@@ -512,19 +517,23 @@ const AddRecipeForm = () => {
                 onClick={addStep}
                 className="mt-4 flex h-11 w-full items-center justify-center rounded-[8px] border border-dashed border-[#cfd5df] bg-white text-base font-extrabold text-[#4f8b16] transition hover:border-[#4f8b16] hover:bg-[#f6fbef]"
               >
-                + Add Step
+                + {t("Add Step")}
               </button>
             </div>
 
             <div className="mt-8">
-              <SectionTitle icon={addRecipeIcon4} title="Additional Details" />
+              <SectionTitle
+                icon={addRecipeIcon4}
+                title={t("Additional Details")}
+              />
               <div className="rounded-[10px] bg-[#f8fbf2] p-4">
                 <p className="text-sm font-bold text-[#071739]">
-                  Public Recipe
+                  {t("Public Recipe")}
                 </p>
                 <p className="mt-1 text-sm font-medium text-[#596477]">
-                  New recipes from members are submitted for admin approval
-                  before they appear publicly.
+                  {t(
+                    "New recipes from members are submitted for admin approval before they appear publicly.",
+                  )}
                 </p>
               </div>
             </div>
@@ -535,7 +544,7 @@ const AddRecipeForm = () => {
                 disabled={loading}
                 className="h-12 rounded-[8px] bg-[#ed3317] text-base font-extrabold text-white shadow-[0_12px_26px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "Creating..." : "Create Recipe"}
+                {loading ? t("Creating...") : t("Create Recipe")}
               </button>
 
               <button
@@ -543,7 +552,7 @@ const AddRecipeForm = () => {
                 onClick={() => filesInputRef.current?.click()}
                 className="h-12 rounded-[8px] border border-[#dbe0e8] bg-white text-base font-extrabold text-[#071739] transition hover:bg-[#f8fafc]"
               >
-                Upload Gallery
+                {t("Upload Gallery")}
               </button>
             </div>
 
@@ -556,7 +565,7 @@ const AddRecipeForm = () => {
 
           <aside className="space-y-5">
             <section className={`${panelClass} p-5`}>
-              <SectionTitle icon={addRecipeIcon5} title="Recipe Preview" />
+              <SectionTitle icon={addRecipeIcon5} title={t("Recipe Preview")} />
 
               <input
                 type="file"
@@ -588,7 +597,7 @@ const AddRecipeForm = () => {
                       onClick={removeImage}
                       className="w-full rounded-[8px] border border-red-100 px-4 py-3 font-extrabold text-red-600 transition hover:bg-red-50"
                     >
-                      Remove Image
+                      {t("Remove Image")}
                     </button>
                   </div>
                 ) : (
@@ -601,17 +610,17 @@ const AddRecipeForm = () => {
                       />
                     </div>
                     <p className="text-base font-extrabold text-[#071739]">
-                      Add a cover photo
+                      {t("Add a cover photo")}
                     </p>
                     <p className="mt-2 text-sm font-medium text-[#687386]">
-                      Recommended: 1200x800px
+                      {t("Recommended: 1200x800px")}
                     </p>
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="mt-8 rounded-[8px] border border-[#ed3317] px-7 py-3 font-extrabold text-[#ed3317] transition hover:bg-[#fff3ef]"
                     >
-                      Upload Photo
+                      {t("Upload Photo")}
                     </button>
                   </div>
                 )}
@@ -621,14 +630,14 @@ const AddRecipeForm = () => {
                 <div className="mt-5">
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-sm font-extrabold text-[#071739]">
-                      Gallery Images
+                      {t("Gallery Images")}
                     </p>
                     <button
                       type="button"
                       onClick={removeImages}
                       className="text-sm font-extrabold text-red-600"
                     >
-                      Remove Gallery
+                      {t("Remove Gallery")}
                     </button>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
@@ -655,15 +664,15 @@ const AddRecipeForm = () => {
                   />
                 </span>
                 <h3 className="text-base font-extrabold text-[#315f08]">
-                  Tips for a Great Recipe
+                  {t("Tips for a Great Recipe")}
                 </h3>
               </div>
               <ul className="space-y-3.5 text-sm font-semibold text-[#315f08]">
-                <li>Use fresh, whole ingredients</li>
-                <li>Include accurate measurements</li>
-                <li>Add clear cooking instructions</li>
-                <li>Include helpful timing details</li>
-                <li>Add a high-quality photo</li>
+                <li>{t("Use fresh, whole ingredients")}</li>
+                <li>{t("Include accurate measurements")}</li>
+                <li>{t("Add clear cooking instructions")}</li>
+                <li>{t("Include helpful timing details")}</li>
+                <li>{t("Add a high-quality photo")}</li>
               </ul>
             </section>
           </aside>

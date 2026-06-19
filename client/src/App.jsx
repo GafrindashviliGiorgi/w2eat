@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import ChangePassword from "./pages/ChangePassword";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PendingRecipesPage from "./pages/admin/PendingRecipesPage";
+import ProfileSettings from "./pages/ProfileSettings";
 import ProtectedRoute from "./features/auth/components/ProtectedRoute";
 import PublicRoute from "./features/auth/components/PublicRoute";
 import AdminRoute from "./features/auth/components/AdminRoute";
@@ -37,6 +38,7 @@ const AppRoutes = () => {
           <Route path="/recipes/:id/edit" element={<EditRecipe />} />
           <Route path="/create" element={<CreateRecipe />} />
           <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/profile/settings" element={<ProfileSettings />} />
         </Route>
 
         <Route element={<AdminRoute />}>

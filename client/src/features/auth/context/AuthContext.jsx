@@ -4,10 +4,14 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  updateProfilePicture as updateProfilePictureRequest,
+  removeProfilePicture as removeProfilePictureRequest,
 } from "../api/authApi";
 import AuthContext from "./AuthContext";
+import { useLanguage } from "../../i18n/context/useLanguage";
 
 export const AuthProvider = ({ children }) => {
+  const { language, setLanguage, t } = useLanguage();
   const [user, setUser] = useState(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
@@ -51,6 +55,24 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const updateProfilePicture = useCallback(async (file) => {
+    const result = await updateProfilePictureRequest(file);
+    if (result.user) {
+      setUser(result.user);
+    }
+
+    return result;
+  }, []);
+
+  const removeProfilePicture = useCallback(async () => {
+    const result = await removeProfilePictureRequest();
+    if (result.user) {
+      setUser(result.user);
+    }
+
+    return result;
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -60,8 +82,25 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       logout,
+      updateProfilePicture,
+      removeProfilePicture,
+      language,
+      setLanguage,
+      t,
     }),
-    [checkAuth, isCheckingAuth, login, logout, register, user],
+    [
+      checkAuth,
+      isCheckingAuth,
+      login,
+      logout,
+      language,
+      removeProfilePicture,
+      register,
+      setLanguage,
+      t,
+      updateProfilePicture,
+      user,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

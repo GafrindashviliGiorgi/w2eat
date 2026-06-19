@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { getAdminDashboard } from "../../features/recipes/api/recipeApi";
 import { useAuth } from "../../features/auth/context/useAuth";
 import defaultPhoto from "../../../design/photoDeatails/defaultPhoto.png";
+import { useLanguage } from "../../features/i18n/context/useLanguage";
 
 const iconPaths = {
   dashboard: ["M4 13h6V4H4v9Z", "M14 20h6V4h-6v16Z", "M4 20h6v-3H4v3Z"],
@@ -134,6 +135,7 @@ const StatCard = ({ icon, tone, label, value, caption }) => (
 );
 
 const ChartCard = ({ data }) => {
+  const { t } = useLanguage();
   const chartData = data.length
     ? data
     : [{ label: "Today", added: 0, published: 0 }];
@@ -168,18 +170,20 @@ const ChartCard = ({ data }) => {
   return (
     <section className="rounded-[8px] border border-[#e7ebf2] bg-white p-6 shadow-[0_14px_36px_rgba(17,24,39,0.04)]">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-black text-[#111827]">Recipes Overview</h2>
+        <h2 className="text-lg font-black text-[#111827]">
+          {t("Recipes Overview")}
+        </h2>
         <div className="flex flex-wrap items-center gap-5 text-xs font-bold text-[#667085]">
           <span className="inline-flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#f15a1d]" />
-            Recipes Added
+            {t("Recipes Added")}
           </span>
           <span className="inline-flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#16a34a]" />
-            Recipes Published
+            {t("Recipes Published")}
           </span>
           <span className="rounded-[8px] border border-[#e2e8f0] px-3 py-2 text-[#111827]">
-            This Week
+            {t("This Week")}
           </span>
         </div>
       </div>
@@ -189,7 +193,7 @@ const ChartCard = ({ data }) => {
           viewBox={`0 0 ${width} ${height}`}
           className="h-full w-full"
           role="img"
-          aria-label="Recipes overview chart"
+          aria-label={t("Recipes overview chart")}
         >
           <defs>
             <linearGradient id="addedFill" x1="0" x2="0" y1="0" y2="1">
@@ -264,6 +268,7 @@ const ChartCard = ({ data }) => {
 };
 
 const UsersOverview = ({ roles, totalUsers }) => {
+  const { t } = useLanguage();
   const admins = roles?.admins || 0;
   const members = roles?.members || 0;
   const total = Math.max(totalUsers || admins + members, 0);
@@ -272,7 +277,9 @@ const UsersOverview = ({ roles, totalUsers }) => {
 
   return (
     <section className="rounded-[8px] border border-[#e7ebf2] bg-white p-6 shadow-[0_14px_36px_rgba(17,24,39,0.04)]">
-      <h2 className="text-lg font-black text-[#111827]">Users Overview</h2>
+      <h2 className="text-lg font-black text-[#111827]">
+        {t("Users Overview")}
+      </h2>
       <div className="mt-7 grid gap-6 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-center">
         <div className="relative mx-auto h-40 w-40 rounded-full p-5">
           <div
@@ -289,7 +296,7 @@ const UsersOverview = ({ roles, totalUsers }) => {
                 {formatNumber(total)}
               </p>
               <p className="mt-1 text-xs font-bold text-[#667085]">
-                Total Users
+                {t("Total Users")}
               </p>
             </div>
           </div>
@@ -298,7 +305,7 @@ const UsersOverview = ({ roles, totalUsers }) => {
           <div className="flex items-center justify-between gap-3 text-sm font-bold">
             <span className="inline-flex items-center gap-3 text-[#111827]">
               <span className="h-3 w-3 rounded-full bg-[#f15a1d]" />
-              Administrators
+              {t("Administrators")}
             </span>
             <span className="text-[#667085]">
               {formatNumber(admins)} ({adminPercent}%)
@@ -307,7 +314,7 @@ const UsersOverview = ({ roles, totalUsers }) => {
           <div className="flex items-center justify-between gap-3 text-sm font-bold">
             <span className="inline-flex items-center gap-3 text-[#111827]">
               <span className="h-3 w-3 rounded-full bg-[#16a34a]" />
-              Members
+              {t("Members")}
             </span>
             <span className="text-[#667085]">
               {formatNumber(members)} ({memberPercent}%)
@@ -321,6 +328,7 @@ const UsersOverview = ({ roles, totalUsers }) => {
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [dashboard, setDashboard] = useState(emptyDashboard);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -455,7 +463,7 @@ const AdminDashboard = () => {
                 }`}
               >
                 <AdminIcon name={item.icon} />
-                {item.label}
+                {t(item.label)}
                 {item.label === "Requests" && stats.requests?.pending > 0 && (
                   <span className="ml-auto rounded-full bg-[#f15a1d] px-2 py-0.5 text-xs text-white">
                     {stats.requests.pending}
@@ -467,7 +475,7 @@ const AdminDashboard = () => {
 
           <div className="mt-auto flex items-center gap-3 rounded-[8px] bg-[#f6f8fb] p-3">
             <img
-              src={user?.profileImg || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+              src={user?.profileImg || defaultPhoto}
               alt=""
               className="h-12 w-12 rounded-full object-cover"
             />
@@ -476,7 +484,7 @@ const AdminDashboard = () => {
                 {user?.username || "Admin"}
               </p>
               <p className="truncate text-xs font-bold text-[#667085]">
-                Administrator
+                {t("Administrator")}
               </p>
             </div>
           </div>
@@ -486,10 +494,11 @@ const AdminDashboard = () => {
           <div className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h1 className="text-[34px] font-black leading-tight tracking-tight text-[#071739]">
-                Dashboard
+                {t("Dashboard")}
               </h1>
               <p className="mt-2 text-sm font-bold text-[#667085]">
-                Welcome back, {user?.username || "Admin"}! Here's what's happening with your recipes today.
+                {t("Welcome back")}, {user?.username || t("Admin")}! {" "}
+                {t("Here's what's happening with your recipes today.")}
               </p>
             </div>
 
@@ -500,7 +509,7 @@ const AdminDashboard = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search anything..."
+                  placeholder={t("Search anything...")}
                   className="min-w-0 flex-1 bg-transparent text-sm font-bold text-[#111827] outline-none placeholder:text-[#8a93a3]"
                 />
               </label>
@@ -508,7 +517,7 @@ const AdminDashboard = () => {
               <button
                 type="button"
                 className="relative grid h-12 w-12 place-items-center rounded-[8px] border border-[#dfe5ef] bg-white text-[#526078] shadow-sm transition-all duration-300 ease-in-out hover:border-[#f15a1d] hover:text-[#f15a1d]"
-                aria-label="Pending requests"
+                aria-label={t("Pending requests")}
               >
                 <AdminIcon name="bell" />
                 {stats.requests?.pending > 0 && (
@@ -533,14 +542,18 @@ const AdminDashboard = () => {
           {loading ? (
             <div className="rounded-[8px] border border-[#e7ebf2] bg-white px-6 py-16 text-center shadow-sm">
               <p className="text-base font-black text-[#111827]">
-                Loading dashboard...
+                {t("Loading dashboard...")}
               </p>
             </div>
           ) : (
             <>
               <section className="grid gap-5 md:grid-cols-2 2xl:grid-cols-4">
                 {metricCards.map((card) => (
-                  <StatCard key={card.label} {...card} />
+                  <StatCard
+                    key={card.label}
+                    {...card}
+                    label={t(card.label)}
+                  />
                 ))}
               </section>
 
@@ -550,20 +563,20 @@ const AdminDashboard = () => {
                 <section className="rounded-[8px] border border-[#e7ebf2] bg-white p-6 shadow-[0_14px_36px_rgba(17,24,39,0.04)]">
                   <div className="mb-5 flex items-center justify-between">
                     <h2 className="text-lg font-black text-[#111827]">
-                      Recent Recipes
+                      {t("Recent Recipes")}
                     </h2>
                     <Link
                       to="/recipes"
                       className="rounded-[8px] border border-[#e2e8f0] px-3 py-2 text-xs font-black text-[#111827] transition-all duration-300 ease-in-out hover:border-[#f15a1d] hover:text-[#f15a1d]"
                     >
-                      View All
+                      {t("View All")}
                     </Link>
                   </div>
 
                   <div className="space-y-4">
                     {filteredRecipes.length === 0 ? (
                       <p className="rounded-[8px] bg-[#f8fafc] px-4 py-6 text-center text-sm font-bold text-[#667085]">
-                        No recent recipes found.
+                        {t("No recent recipes found.")}
                       </p>
                     ) : (
                       filteredRecipes.slice(0, 5).map((recipe) => (
@@ -602,7 +615,7 @@ const AdminDashboard = () => {
                     to="/recipes"
                     className="mt-5 inline-flex w-full items-center justify-center gap-2 text-sm font-black text-[#f15a1d] transition-all duration-300 ease-in-out hover:translate-x-1"
                   >
-                    View All Recipes
+                    {t("View All Recipes")}
                     <AdminIcon name="arrow" className="h-4 w-4" />
                   </Link>
                 </section>
@@ -612,20 +625,20 @@ const AdminDashboard = () => {
                 <section className="rounded-[8px] border border-[#e7ebf2] bg-white p-6 shadow-[0_14px_36px_rgba(17,24,39,0.04)]">
                   <div className="mb-5 flex items-center justify-between">
                     <h2 className="text-lg font-black text-[#111827]">
-                      Top Categories
+                      {t("Top Categories")}
                     </h2>
                     <Link
                       to="/recipes"
                       className="rounded-[8px] border border-[#e2e8f0] px-3 py-2 text-xs font-black text-[#111827] transition-all duration-300 ease-in-out hover:border-[#f15a1d] hover:text-[#f15a1d]"
                     >
-                      View All
+                      {t("View All")}
                     </Link>
                   </div>
 
                   <div className="space-y-3">
                     {(dashboard.topCategories || []).length === 0 ? (
                       <p className="rounded-[8px] bg-[#f8fafc] px-4 py-6 text-center text-sm font-bold text-[#667085]">
-                        Categories will appear here.
+                        {t("Categories will appear here.")}
                       </p>
                     ) : (
                       dashboard.topCategories.map((category, index) => (
@@ -656,7 +669,7 @@ const AdminDashboard = () => {
 
                 <section className="rounded-[8px] border border-[#e7ebf2] bg-white p-6 shadow-[0_14px_36px_rgba(17,24,39,0.04)]">
                   <h2 className="text-lg font-black text-[#111827]">
-                    Quick Actions
+                    {t("Quick Actions")}
                   </h2>
                   <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <Link
@@ -664,28 +677,28 @@ const AdminDashboard = () => {
                       className="inline-flex h-16 items-center justify-center gap-3 rounded-[8px] border border-[#ffd5c2] bg-white px-4 text-sm font-black text-[#f15a1d] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#fff0e8]"
                     >
                       <AdminIcon name="plus" />
-                      Add New Recipe
+                      {t("Add New Recipe")}
                     </Link>
                     <Link
                       to="/admin/recipe-requests"
                       className="inline-flex h-16 items-center justify-center gap-3 rounded-[8px] border border-[#ccefd5] bg-white px-4 text-sm font-black text-[#16a34a] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#ebfbef]"
                     >
                       <AdminIcon name="requests" />
-                      Requests
+                      {t("Requests")}
                     </Link>
                     <Link
                       to="/recipes"
                       className="inline-flex h-16 items-center justify-center gap-3 rounded-[8px] border border-[#e2d7ff] bg-white px-4 text-sm font-black text-[#6d5dfc] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#f1edff]"
                     >
                       <AdminIcon name="categories" />
-                      Recipes
+                      {t("Recipes")}
                     </Link>
                     <Link
                       to="/change-password"
                       className="inline-flex h-16 items-center justify-center gap-3 rounded-[8px] border border-[#cfe5ff] bg-white px-4 text-sm font-black text-[#1d7fe8] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#eaf4ff]"
                     >
                       <AdminIcon name="settings" />
-                      Settings
+                      {t("Settings")}
                     </Link>
                   </div>
                 </section>
@@ -694,24 +707,24 @@ const AdminDashboard = () => {
               <section className="mt-6 overflow-hidden rounded-[8px] border border-[#e7ebf2] bg-white shadow-[0_14px_36px_rgba(17,24,39,0.04)]">
                 <div className="flex items-center justify-between px-6 py-5">
                   <h2 className="text-lg font-black text-[#111827]">
-                    Latest Comments
+                    {t("Latest Comments")}
                   </h2>
                   <Link
                     to="/recipes"
                     className="rounded-[8px] border border-[#e2e8f0] px-3 py-2 text-xs font-black text-[#111827] transition-all duration-300 ease-in-out hover:border-[#f15a1d] hover:text-[#f15a1d]"
                   >
-                    View All
+                    {t("View All")}
                   </Link>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-[900px] w-full border-collapse">
                     <thead>
                       <tr className="bg-[#f8fafc] text-left text-xs font-black text-[#667085]">
-                        <th className="px-6 py-4">User</th>
-                        <th className="px-6 py-4">Recipe</th>
-                        <th className="px-6 py-4">Comment</th>
-                        <th className="px-6 py-4">Date</th>
-                        <th className="px-6 py-4">Status</th>
+                        <th className="px-6 py-4">{t("User")}</th>
+                        <th className="px-6 py-4">{t("Recipe")}</th>
+                        <th className="px-6 py-4">{t("Comment")}</th>
+                        <th className="px-6 py-4">{t("Date")}</th>
+                        <th className="px-6 py-4">{t("Status")}</th>
                         <th className="px-6 py-4 text-right"></th>
                       </tr>
                     </thead>
@@ -722,7 +735,7 @@ const AdminDashboard = () => {
                             colSpan={6}
                             className="px-6 py-10 text-center text-sm font-bold text-[#667085]"
                           >
-                            No comments found.
+                            {t("No comments found.")}
                           </td>
                         </tr>
                       ) : (
@@ -731,7 +744,7 @@ const AdminDashboard = () => {
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
                                 <img
-                                  src={comment.user?.profileImg || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+                                  src={comment.user?.profileImg || defaultPhoto}
                                   alt=""
                                   className="h-9 w-9 rounded-full object-cover"
                                 />
@@ -751,7 +764,7 @@ const AdminDashboard = () => {
                             </td>
                             <td className="px-6 py-4">
                               <span className="rounded-[8px] bg-[#e8f9ed] px-3 py-1 text-xs font-black text-[#16a34a]">
-                                Approved
+                                {t("Approved")}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-right">

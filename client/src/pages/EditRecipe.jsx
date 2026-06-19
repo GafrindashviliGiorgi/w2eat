@@ -8,6 +8,7 @@ import {
   deleteRecipe,
 } from "../features/recipes/api/recipeApi";
 import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
+import { useLanguage } from "../features/i18n/context/useLanguage";
 
 const emptyIngredient = { name: "", quantity: "" };
 const emptyStep = { stepNumber: 1, instruction: "" };
@@ -117,6 +118,7 @@ const recipeToForm = (recipe) => ({
 const EditRecipe = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState(() => recipeToForm(null));
@@ -189,7 +191,7 @@ const EditRecipe = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please choose an image file");
+      toast.error(t("Please choose an image file"));
       event.target.value = "";
       return;
     }
@@ -201,7 +203,7 @@ const EditRecipe = () => {
         image: reader.result,
       }));
     };
-    reader.onerror = () => toast.error("Failed to read selected image");
+    reader.onerror = () => toast.error(t("Failed to read selected image"));
     reader.readAsDataURL(file);
   };
 
@@ -342,7 +344,7 @@ const EditRecipe = () => {
     try {
       setSaving(true);
       await updateRecipe(id, buildPayload());
-      toast.success("Recipe updated successfully");
+      toast.success(t("Recipe updated successfully"));
       navigate(`/recipes/${id}`);
     } catch (err) {
       toast.error(err.message || "Failed to update recipe");
@@ -355,7 +357,7 @@ const EditRecipe = () => {
     try {
       setDeleting(true);
       await deleteRecipe(id);
-      toast.success("Recipe deleted successfully");
+      toast.success(t("Recipe deleted successfully"));
       setShowDeleteConfirm(false);
       navigate("/recipes");
     } catch (err) {
@@ -368,7 +370,9 @@ const EditRecipe = () => {
   if (loading) {
     return (
       <div className="min-h-[calc(100vh-88px)] bg-[#f8fafc] px-6 py-16 text-center">
-        <p className="text-base font-black text-[#071739]">Loading recipe...</p>
+        <p className="text-base font-black text-[#071739]">
+          {t("Loading recipe...")}
+        </p>
       </div>
     );
   }
@@ -385,12 +389,12 @@ const EditRecipe = () => {
             className="mb-8 inline-flex items-center gap-2 text-sm font-black text-[#667085] transition-all duration-300 ease-in-out hover:text-[#f15a1d]"
           >
             <Icon name="arrow" className="h-4 w-4" />
-            Back to recipe
+            {t("Back to recipe")}
           </Link>
 
           <div className="mb-6">
             <p className="text-xs font-black uppercase tracking-[0.12em] text-[#98a2b3]">
-              Edit Menu
+              {t("Edit Menu")}
             </p>
           </div>
 
@@ -406,7 +410,7 @@ const EditRecipe = () => {
                 }`}
               >
                 <Icon name={item.icon} className="h-5 w-5" />
-                {item.label}
+                {t(item.label)}
               </a>
             ))}
           </nav>
@@ -420,7 +424,7 @@ const EditRecipe = () => {
                   to="/recipes"
                   className="transition-all duration-300 ease-in-out hover:text-[#f15a1d]"
                 >
-                  Recipes
+                  {t("Recipes")}
                 </Link>
                 <span>/</span>
                 <Link
@@ -430,13 +434,13 @@ const EditRecipe = () => {
                   {recipeMeta?.title || "Recipe"}
                 </Link>
                 <span>/</span>
-                <span className="text-[#071739]">Edit</span>
+                <span className="text-[#071739]">{t("Edit")}</span>
               </div>
               <h1 className="text-[34px] font-black leading-tight tracking-tight text-[#071739]">
-                Edit Recipe
+                {t("Edit Recipe")}
               </h1>
               <p className="mt-2 text-sm font-bold text-[#667085]">
-                Update your recipe details and keep everything fresh.
+                {t("Update your recipe details and keep everything fresh.")}
               </p>
             </div>
 
@@ -446,7 +450,7 @@ const EditRecipe = () => {
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-[8px] border border-[#dfe5ef] bg-white px-8 text-sm font-black text-[#071739] shadow-sm transition-all duration-300 ease-in-out hover:border-[#f15a1d] hover:text-[#f15a1d]"
               >
                 <Icon name="cancel" className="h-4 w-4" />
-                Cancel
+                {t("Cancel")}
               </Link>
               <button
                 type="submit"
@@ -454,7 +458,7 @@ const EditRecipe = () => {
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-[8px] bg-[#f15a1d] px-8 text-sm font-black text-white shadow-[0_14px_30px_rgba(241,90,29,0.24)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#e24612] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Icon name="save" className="h-4 w-4" />
-                {saving ? "Saving..." : "Save Changes"}
+                {saving ? t("Saving...") : t("Save Changes")}
               </button>
             </div>
           </div>
@@ -462,12 +466,12 @@ const EditRecipe = () => {
           <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-6">
               <section id="basic" className={`${cardClass} p-6`}>
-                <SectionTitle icon="basic" title="Basic Information" />
+                <SectionTitle icon="basic" title={t("Basic Information")} />
 
                 <div className="space-y-5">
                   <label className="block">
                     <span className="mb-2 block text-sm font-black text-[#071739]">
-                      Recipe Title *
+                      {t("Recipe Title")} *
                     </span>
                     <input
                       type="text"
@@ -481,7 +485,7 @@ const EditRecipe = () => {
 
                   <label className="block">
                     <span className="mb-2 block text-sm font-black text-[#071739]">
-                      Description *
+                      {t("Description")} *
                     </span>
                     <textarea
                       name="description"
@@ -499,7 +503,7 @@ const EditRecipe = () => {
                   <div className="grid gap-5 md:grid-cols-3">
                     <label className="block">
                       <span className="mb-2 block text-sm font-black text-[#071739]">
-                        Cook Time
+                        {t("Cook Time")}
                       </span>
                       <input
                         type="number"
@@ -514,7 +518,7 @@ const EditRecipe = () => {
 
                     <label className="block">
                       <span className="mb-2 block text-sm font-black text-[#071739]">
-                        Servings
+                        {t("Servings")}
                       </span>
                       <input
                         type="number"
@@ -529,7 +533,7 @@ const EditRecipe = () => {
 
                     <label className="block">
                       <span className="mb-2 block text-sm font-black text-[#071739]">
-                        Difficulty
+                        {t("Difficulty")}
                       </span>
                       <select
                         name="difficulty"
@@ -537,9 +541,9 @@ const EditRecipe = () => {
                         onChange={handleChange}
                         className={compactInputClass}
                       >
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
+                        <option value="easy">{t("Easy")}</option>
+                        <option value="medium">{t("Medium")}</option>
+                        <option value="hard">{t("Hard")}</option>
                       </select>
                     </label>
                   </div>
@@ -547,7 +551,7 @@ const EditRecipe = () => {
                   <div className="grid gap-5 md:grid-cols-2">
                     <label className="block">
                       <span className="mb-2 block text-sm font-black text-[#071739]">
-                        Category *
+                        {t("Category")} *
                       </span>
                       <select
                         name="category"
@@ -556,7 +560,7 @@ const EditRecipe = () => {
                         className={inputClass}
                         required
                       >
-                        <option value="">Select a category</option>
+                        <option value="">{t("Select a category")}</option>
                         {categories.map((category) => (
                           <option key={category} value={category}>
                             {category}
@@ -567,7 +571,7 @@ const EditRecipe = () => {
 
                     <div>
                       <span className="mb-2 block text-sm font-black text-[#071739]">
-                        Dietary Tags
+                        {t("Dietary Tags")}
                       </span>
                       <div className="flex gap-2">
                         <input
@@ -584,7 +588,7 @@ const EditRecipe = () => {
                           className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-[8px] border border-[#bfe8c8] bg-[#f0fff3] px-4 text-sm font-black text-[#26963e] transition-all duration-300 ease-in-out hover:-translate-y-0.5"
                         >
                           <Icon name="plus" className="h-4 w-4" />
-                          Add
+                          {t("Add")}
                         </button>
                       </div>
                     </div>
@@ -610,7 +614,7 @@ const EditRecipe = () => {
               <section id="ingredients" className={`${cardClass} p-6`}>
                 <SectionTitle
                   icon="ingredients"
-                  title="Ingredients"
+                  title={t("Ingredients")}
                   action={
                     <button
                       type="button"
@@ -618,7 +622,7 @@ const EditRecipe = () => {
                       className="inline-flex h-10 items-center justify-center gap-2 rounded-[8px] border border-[#bfe8c8] bg-white px-4 text-sm font-black text-[#26963e] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#f0fff3]"
                     >
                       <Icon name="plus" className="h-4 w-4" />
-                      Add Ingredient
+                      {t("Add Ingredient")}
                     </button>
                   }
                 />
@@ -635,7 +639,7 @@ const EditRecipe = () => {
                         onChange={(event) =>
                           handleIngredientChange(index, "name", event.target.value)
                         }
-                        placeholder="Ingredient name"
+                        placeholder={t("Ingredient name")}
                         className={compactInputClass}
                       />
                       <input
@@ -648,14 +652,14 @@ const EditRecipe = () => {
                             event.target.value,
                           )
                         }
-                        placeholder="Quantity"
+                        placeholder={t("Quantity")}
                         className={compactInputClass}
                       />
                       <button
                         type="button"
                         onClick={() => removeIngredient(index)}
                         className="grid h-11 w-full place-items-center rounded-[8px] border border-[#ffd1d1] bg-white text-[#e32222] transition-all duration-300 ease-in-out hover:bg-[#fff3f3] md:w-11"
-                        aria-label="Remove ingredient"
+                        aria-label={t("Remove ingredient")}
                       >
                         <Icon name="trash" className="h-4 w-4" />
                       </button>
@@ -667,7 +671,7 @@ const EditRecipe = () => {
               <section id="instructions" className={`${cardClass} p-6`}>
                 <SectionTitle
                   icon="steps"
-                  title="Recipe Instructions"
+                  title={t("Recipe Instructions")}
                   action={
                     <button
                       type="button"
@@ -675,7 +679,7 @@ const EditRecipe = () => {
                       className="inline-flex h-10 items-center justify-center gap-2 rounded-[8px] border border-[#bfe8c8] bg-white px-4 text-sm font-black text-[#26963e] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#f0fff3]"
                     >
                       <Icon name="plus" className="h-4 w-4" />
-                      Add Step
+                      {t("Add Step")}
                     </button>
                   }
                 />
@@ -695,14 +699,14 @@ const EditRecipe = () => {
                         onChange={(event) =>
                           handleStepChange(index, event.target.value)
                         }
-                        placeholder={`Describe step ${index + 1}`}
+                        placeholder={`${t("Describe step")} ${index + 1}`}
                         className={compactInputClass}
                       />
                       <button
                         type="button"
                         onClick={() => removeStep(index)}
                         className="grid h-11 w-full place-items-center rounded-[8px] border border-[#ffd1d1] bg-white text-[#e32222] transition-all duration-300 ease-in-out hover:bg-[#fff3f3] md:w-11"
-                        aria-label="Remove step"
+                        aria-label={t("Remove step")}
                       >
                         <Icon name="trash" className="h-4 w-4" />
                       </button>
@@ -712,11 +716,11 @@ const EditRecipe = () => {
               </section>
 
               <section className={`${cardClass} p-6`}>
-                <SectionTitle icon="details" title="Recipe Information" />
+                <SectionTitle icon="details" title={t("Recipe Information")} />
                 <div className="grid gap-5 md:grid-cols-3">
                   <label className="block">
                     <span className="mb-2 block text-sm font-black text-[#071739]">
-                      Created At
+                      {t("Created At")}
                     </span>
                     <div className="flex h-12 items-center gap-2 rounded-[8px] border border-[#dfe5ef] bg-[#fbfcfe] px-4 text-sm font-bold text-[#667085]">
                       <Icon name="calendar" className="h-4 w-4" />
@@ -725,7 +729,7 @@ const EditRecipe = () => {
                   </label>
                   <label className="block">
                     <span className="mb-2 block text-sm font-black text-[#071739]">
-                      Updated At
+                      {t("Updated At")}
                     </span>
                     <div className="flex h-12 items-center gap-2 rounded-[8px] border border-[#dfe5ef] bg-[#fbfcfe] px-4 text-sm font-bold text-[#667085]">
                       <Icon name="calendar" className="h-4 w-4" />
@@ -734,7 +738,7 @@ const EditRecipe = () => {
                   </label>
                   <label className="block">
                     <span className="mb-2 block text-sm font-black text-[#071739]">
-                      Recipe ID
+                      {t("Recipe ID")}
                     </span>
                     <div className="flex h-12 items-center rounded-[8px] border border-[#dfe5ef] bg-[#fbfcfe] px-4 text-sm font-bold text-[#667085]">
                       #{id?.slice(-8) || "recipe"}
@@ -748,7 +752,7 @@ const EditRecipe = () => {
                   to={`/recipes/${id}`}
                   className="inline-flex h-12 items-center justify-center rounded-[8px] border border-[#dfe5ef] bg-white text-sm font-black text-[#071739] transition-all duration-300 ease-in-out hover:border-[#f15a1d] hover:text-[#f15a1d]"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </Link>
                 <button
                   type="submit"
@@ -756,14 +760,14 @@ const EditRecipe = () => {
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-[8px] bg-[#f15a1d] text-sm font-black text-white shadow-[0_14px_30px_rgba(241,90,29,0.24)] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#e24612] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Icon name="save" className="h-4 w-4" />
-                  {saving ? "Saving..." : "Save Changes"}
+                  {saving ? t("Saving...") : t("Save Changes")}
                 </button>
               </div>
             </div>
 
             <aside className="space-y-6">
               <section className={`${cardClass} p-5`}>
-                <SectionTitle icon="image" title="Recipe Image" />
+                <SectionTitle icon="image" title={t("Recipe Image")} />
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -777,7 +781,7 @@ const EditRecipe = () => {
                   className="h-56 w-full rounded-[8px] border border-[#e7ebf2] object-cover"
                 />
                 <p className="mt-3 text-center text-xs font-bold text-[#667085]">
-                  Recommended: 1200x800px
+                  {t("Recommended: 1200x800px")}
                 </p>
                 <button
                   type="button"
@@ -785,7 +789,7 @@ const EditRecipe = () => {
                   className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-[8px] border border-[#ffd1bf] bg-white text-sm font-black text-[#f15a1d] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#fff0e8]"
                 >
                   <Icon name="upload" className="h-4 w-4" />
-                  Change Image
+                  {t("Change Image")}
                 </button>
                 <button
                   type="button"
@@ -798,12 +802,12 @@ const EditRecipe = () => {
                   className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] text-sm font-black text-[#e32222] transition-all duration-300 ease-in-out hover:bg-[#fff3f3]"
                 >
                   <Icon name="trash" className="h-4 w-4" />
-                  Remove Image
+                  {t("Remove Image")}
                 </button>
               </section>
 
               <section className={`${cardClass} p-5`}>
-                <SectionTitle icon="status" title="Recipe Status" />
+                <SectionTitle icon="status" title={t("Recipe Status")} />
                 <div className="space-y-4">
                   {[
                     {
@@ -832,10 +836,10 @@ const EditRecipe = () => {
                       />
                       <div>
                         <p className="text-sm font-black capitalize text-[#071739]">
-                          {item.label}
+                          {t(item.label)}
                         </p>
                         <p className="mt-0.5 text-xs font-bold text-[#667085]">
-                          {item.help}
+                          {t(item.help)}
                         </p>
                       </div>
                     </div>
@@ -847,24 +851,24 @@ const EditRecipe = () => {
                   className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-[8px] border border-[#ffd1d1] bg-white text-sm font-black text-[#e32222] transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-[#fff3f3]"
                 >
                   <Icon name="trash" className="h-4 w-4" />
-                  Delete Recipe
+                  {t("Delete Recipe")}
                 </button>
               </section>
 
               <section className="rounded-[8px] border border-[#dcefd8] bg-[#fbfff8] p-5 shadow-[0_18px_45px_rgba(17,24,39,0.04)]">
-                <SectionTitle icon="tip" title="Tips for a Great Recipe" />
+                <SectionTitle icon="tip" title={t("Tips for a Great Recipe")} />
                 <ul className="space-y-3 text-sm font-bold text-[#245a24]">
                   <li className="flex gap-2">
                     <span className="text-[#26963e]">-</span>
-                    Use clear ingredient measurements.
+                    {t("Use clear ingredient measurements.")}
                   </li>
                   <li className="flex gap-2">
                     <span className="text-[#26963e]">-</span>
-                    Keep cooking steps short and ordered.
+                    {t("Keep cooking steps short and ordered.")}
                   </li>
                   <li className="flex gap-2">
                     <span className="text-[#26963e]">-</span>
-                    Add a bright, high quality photo.
+                    {t("Add a bright, high quality photo.")}
                   </li>
                 </ul>
               </section>
@@ -877,7 +881,7 @@ const EditRecipe = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#071739]/55 px-4">
           <div className="w-full max-w-md rounded-[8px] bg-white p-6 shadow-[0_24px_60px_rgba(7,23,57,0.24)]">
             <h2 className="text-xl font-black text-[#071739]">
-              Delete Recipe?
+              {t("Delete Recipe?")}
             </h2>
             <p className="mt-3 text-sm font-bold leading-6 text-[#526078]">
               Are you sure you want to delete "{form.title || "this recipe"}"?
@@ -891,7 +895,7 @@ const EditRecipe = () => {
                 disabled={deleting}
                 className="h-11 rounded-[8px] border border-[#dbe1ea] bg-white px-5 text-sm font-black text-[#071739] transition-all duration-300 ease-in-out hover:border-[#071739] disabled:opacity-60"
               >
-                Cancel
+                {t("Cancel")}
               </button>
               <button
                 type="button"
@@ -899,7 +903,7 @@ const EditRecipe = () => {
                 disabled={deleting}
                 className="h-11 rounded-[8px] bg-[#e32222] px-5 text-sm font-black text-white transition-all duration-300 ease-in-out hover:bg-[#c91d1d] disabled:opacity-60"
               >
-                {deleting ? "Deleting..." : "Delete Recipe"}
+                {deleting ? t("Deleting...") : t("Delete Recipe")}
               </button>
             </div>
           </div>

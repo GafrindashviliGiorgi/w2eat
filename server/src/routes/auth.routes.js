@@ -7,9 +7,12 @@ const {
   logout,
   getMe,
   changePassword,
+  updateProfilePicture,
+  removeProfilePicture,
 } = require("../controllers/auth.controller");
 
 const { protect } = require("../middleware/auth.middleware");
+const { uploadProfilePicture } = require("../config/cloudinary.upload");
 
 /**
  * @swagger
@@ -42,7 +45,8 @@ const { protect } = require("../middleware/auth.middleware");
  *           example: test@test.com
  *         profileImg:
  *           type: string
- *           example: https://cdn-icons-png.flaticon.com/512/149/149071.png
+ *           description: Custom avatar URL; empty when the default client image is used
+ *           example: ""
  *
  *     RegisterRequest:
  *       type: object
@@ -189,6 +193,58 @@ router.get("/me", protect, getMe);
  *         description: User not found
  */
 router.patch("/change-password", protect, changePassword);
+
+/**
+ * @swagger
+ * /auth/profile/pfp:
+ *   put:
+ *     summary: Update the current user's profile picture
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [pfp]
+ *             properties:
+ *               pfp:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Profile picture updated successfully
+ *       400:
+ *         description: A valid image is required
+ *       401:
+ *         description: Not authorized
+ */
+router.put(
+  "/profile/pfp",
+  protect,
+  uploadProfilePicture,
+  updateProfilePicture,
+);
+
+/**
+ * @swagger
+ * /auth/profile/pfp:
+ *   delete:
+ *     summary: Remove the current user's custom profile picture
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile picture removed and reset to the default state
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: User not found
+ */
+router.delete("/profile/pfp", protect, removeProfilePicture);
 
 /**
  * @swagger

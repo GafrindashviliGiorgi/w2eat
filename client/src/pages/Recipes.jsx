@@ -9,6 +9,7 @@ import {
   getRecipes as fetchRecipes,
 } from "../features/recipes/api/recipeApi";
 import { useFavorites } from "../features/recipes/context/useFavorites";
+import { useLanguage } from "../features/i18n/context/useLanguage";
 
 const cookingTimes = ["Under 15 min", "15 - 30 min", "30 - 45 min", "45+ min"];
 const difficultyOptions = ["easy", "medium", "hard"];
@@ -138,6 +139,7 @@ const Recipes = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { t } = useLanguage();
 
   const limit = 6;
   const hasActiveFilters =
@@ -292,7 +294,7 @@ const Recipes = () => {
   if (loading) {
     return (
       <div className="min-h-[calc(100vh-72px)] bg-[#fffaf5] px-6 py-14 text-center text-lg font-semibold text-[#071739]">
-        Loading recipes...
+        {t("Loading recipes...")}
       </div>
     );
   }
@@ -318,11 +320,12 @@ const Recipes = () => {
 
         <div className="relative z-10 mb-6 max-w-[760px]">
           <h1 className="text-[42px] font-extrabold leading-tight text-[#071739] sm:text-[48px]">
-            All Recipes
+            {t("All Recipes")}
           </h1>
           <p className="mt-2 max-w-full text-lg font-semibold leading-7 text-[#3d465a]">
-            Explore 1000+ healthy and delicious recipes to fuel your body and
-            fit your goals.
+            {t(
+              "Explore 1000+ healthy and delicious recipes to fuel your body and fit your goals.",
+            )}
           </p>
         </div>
 
@@ -343,7 +346,7 @@ const Recipes = () => {
                 setSearchQuery(e.target.value);
                 setPage(1);
               }}
-              placeholder="Search recipes or ingredients..."
+              placeholder={t("Search recipes or ingredients...")}
               className="min-w-0 flex-1 bg-transparent text-base font-semibold text-[#071739] outline-none placeholder:text-[#7b8493]"
             />
             {searchQuery && (
@@ -354,7 +357,7 @@ const Recipes = () => {
                   setPage(1);
                 }}
                 className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-lg font-bold text-[#7b8493] transition hover:bg-[#fff0e9] hover:text-[#ed3317]"
-                aria-label="Clear search"
+                aria-label={t("Clear search")}
               >
                 x
               </button>
@@ -375,7 +378,7 @@ const Recipes = () => {
               <path d="M9 7a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
               <path d="M19 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
             </svg>
-            Filters
+            {t("Filters")}
           </button>
 
           <button
@@ -383,7 +386,8 @@ const Recipes = () => {
             className="flex h-[58px] items-center justify-between rounded-[8px] border border-[#e6dfd6] bg-white px-5 text-base font-semibold text-[#3d465a] shadow-[0_8px_22px_rgba(7,23,57,0.04)] transition hover:border-[#ed3317]"
           >
             <span>
-              Sort by: <span className="text-[#071739]">Newest</span>
+              {t("Sort by:")} {" "}
+              <span className="text-[#071739]">{t("Newest")}</span>
             </span>
             <svg
               aria-hidden="true"
@@ -413,7 +417,7 @@ const Recipes = () => {
                 }`}
                 aria-pressed={isChipActive}
               >
-                {chip}
+                {chip === "All" ? t("All") : chip}
               </button>
             );
           })}
@@ -423,14 +427,14 @@ const Recipes = () => {
           <aside className="self-start rounded-[8px] border border-[#efe7dd] bg-white shadow-[0_16px_38px_rgba(7,23,57,0.07)]">
             <div className="flex items-center justify-between border-b border-[#efe7dd] px-5 py-4">
               <h2 className="text-base font-extrabold text-[#071739]">
-                Filter Recipes
+                {t("Filter Recipes")}
               </h2>
               <button
                 type="button"
                 onClick={resetFilters}
                 className="text-sm font-bold text-[#ed3317] transition hover:text-[#d82b12]"
               >
-                Reset
+                {t("Reset")}
               </button>
             </div>
 
@@ -438,7 +442,7 @@ const Recipes = () => {
               <div>
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-sm font-extrabold text-[#071739]">
-                    Category
+                    {t("Category")}
                   </h3>
                   <span className="text-lg font-bold text-[#071739]">^</span>
                 </div>
@@ -451,7 +455,7 @@ const Recipes = () => {
                   }}
                   className="h-11 w-full rounded-[8px] border border-[#e6dfd6] bg-[#fffaf5] px-3 text-sm font-bold text-[#071739] outline-none transition focus:border-[#ed3317] focus:ring-2 focus:ring-[#ffddd6]"
                 >
-                  <option value="">All categories</option>
+                  <option value="">{t("All categories")}</option>
                   {categories.map((category) => (
                     <option key={category} value={category}>
                       {category}
@@ -463,7 +467,7 @@ const Recipes = () => {
               <div className="border-t border-[#efe7dd] pt-4">
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-sm font-extrabold text-[#071739]">
-                    Difficulty
+                    {t("Difficulty")}
                   </h3>
                   <span className="text-lg font-bold text-[#071739]">^</span>
                 </div>
@@ -491,7 +495,7 @@ const Recipes = () => {
                     >
                       ✓
                     </span>
-                    <span>Any difficulty</span>
+                    <span>{t("Any difficulty")}</span>
                   </button>
 
                   {difficultyOptions.map((option) => (
@@ -506,7 +510,7 @@ const Recipes = () => {
                         className="h-4 w-4 rounded border-[#c4cbd5] accent-[#ed3317]"
                       />
                       <span>
-                        {option.charAt(0).toUpperCase() + option.slice(1)}
+                        {t(option.charAt(0).toUpperCase() + option.slice(1))}
                       </span>
                     </label>
                   ))}
@@ -524,7 +528,7 @@ const Recipes = () => {
                       />
                     </span>
                     <h3 className="text-sm font-extrabold text-[#071739]">
-                      Calories
+                      {t("Calories")}
                     </h3>
                   </div>
                   <span className="text-lg font-bold text-[#071739]">v</span>
@@ -550,7 +554,7 @@ const Recipes = () => {
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <label className="block">
                     <span className="mb-1 block text-xs font-bold text-[#6a7281]">
-                      Min
+                      {t("Min")}
                     </span>
                     <input
                       type="number"
@@ -567,7 +571,7 @@ const Recipes = () => {
                   </label>
                   <label className="block">
                     <span className="mb-1 block text-xs font-bold text-[#6a7281]">
-                      Max
+                      {t("Max")}
                     </span>
                     <input
                       type="number"
@@ -592,7 +596,7 @@ const Recipes = () => {
               <div className="border-t border-[#efe7dd] pt-4">
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-sm font-extrabold text-[#071739]">
-                    Cooking Time
+                    {t("Cooking Time")}
                   </h3>
                   <span className="text-lg font-bold text-[#071739]">^</span>
                 </div>
@@ -608,7 +612,7 @@ const Recipes = () => {
                         onChange={() => toggleCookingTime(option)}
                         className="h-4 w-4 rounded border-[#c4cbd5] accent-[#ed3317]"
                       />
-                      <span>{option}</span>
+                      <span>{t(option)}</span>
                     </label>
                   ))}
                 </div>
@@ -619,7 +623,7 @@ const Recipes = () => {
                 onClick={() => setPage(1)}
                 className="h-[50px] w-full rounded-[8px] bg-[#ed3317] text-base font-extrabold text-white shadow-[0_12px_24px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12]"
               >
-                Apply Filters
+                {t("Apply Filters")}
               </button>
             </div>
           </aside>
@@ -657,8 +661,8 @@ const Recipes = () => {
                         }`}
                         aria-label={
                           favorite
-                            ? `Remove ${recipe.title} from favorites`
-                            : `Add ${recipe.title} to favorites`
+                            ? t("Remove from favorites")
+                            : t("Add to favorites")
                         }
                         aria-pressed={favorite}
                       >
@@ -681,7 +685,9 @@ const Recipes = () => {
                             <circle cx="12" cy="12" r="9" />
                             <path d="M12 7v5l3 2" />
                           </svg>
-                          {recipe.cookTime ? `${recipe.cookTime} min` : "Fresh"}
+                          {recipe.cookTime
+                            ? `${recipe.cookTime} min`
+                            : t("Fresh")}
                         </span>
                         <span className="inline-flex items-center gap-2">
                           <svg
@@ -691,7 +697,12 @@ const Recipes = () => {
                           >
                             <path d="M12 2s5 5.4 5 11a5 5 0 0 1-10 0c0-5.6 5-11 5-11Z" />
                           </svg>
-                          {recipe.difficulty || "Easy"}
+                          {t(
+                            recipe.difficulty
+                              ? recipe.difficulty.charAt(0).toUpperCase() +
+                                  recipe.difficulty.slice(1)
+                              : "Easy",
+                          )}
                         </span>
                       </div>
 
@@ -709,7 +720,7 @@ const Recipes = () => {
                           ))
                         ) : (
                           <span className="rounded-full bg-[#edf8df] px-4 py-[7px] text-sm font-bold text-[#177a1b]">
-                            Healthy
+                            {t("Healthy")}
                           </span>
                         )}
                       </div>
@@ -722,12 +733,12 @@ const Recipes = () => {
             {filteredRecipes.length === 0 && (
               <div className="rounded-[8px] border border-dashed border-[#edcfc7] bg-white px-6 py-12 text-center shadow-[0_16px_38px_rgba(7,23,57,0.06)]">
                 <h2 className="text-xl font-extrabold text-[#071739]">
-                  No recipes found
+                  {t("No recipes found")}
                 </h2>
                 <p className="mt-2 text-base font-semibold text-[#4c5669]">
                   {hasActiveFilters
-                    ? "Try another search or clear the selected filters."
-                    : "There are no recipes available yet."}
+                    ? t("Try another search or clear the selected filters.")
+                    : t("There are no recipes available yet.")}
                 </p>
                 {hasActiveFilters && (
                   <button
@@ -735,7 +746,7 @@ const Recipes = () => {
                     onClick={resetFilters}
                     className="mt-5 rounded-[8px] bg-[#ed3317] px-6 py-3 text-sm font-extrabold text-white shadow-[0_10px_18px_rgba(237,51,23,0.22)] transition hover:bg-[#d82b12]"
                   >
-                    Show all recipes
+                    {t("Show all recipes")}
                   </button>
                 )}
               </div>
@@ -747,7 +758,7 @@ const Recipes = () => {
                   disabled={!pagination.hasPrevPage}
                   onClick={() => setPage((prev) => prev - 1)}
                   className="grid h-[42px] w-[42px] place-items-center rounded-[8px] border border-[#e6dfd6] bg-white text-xl font-bold text-[#071739] shadow-sm transition hover:border-[#ed3317] disabled:cursor-not-allowed disabled:opacity-45"
-                  aria-label="Previous page"
+                  aria-label={t("Previous page")}
                 >
                   {"<"}
                 </button>
@@ -774,7 +785,7 @@ const Recipes = () => {
                   disabled={!pagination.hasNextPage}
                   onClick={() => setPage((prev) => prev + 1)}
                   className="grid h-[42px] w-[42px] place-items-center rounded-[8px] border border-[#e6dfd6] bg-white text-xl font-bold text-[#071739] shadow-sm transition hover:border-[#ed3317] disabled:cursor-not-allowed disabled:opacity-45"
-                  aria-label="Next page"
+                  aria-label={t("Next page")}
                 >
                   {">"}
                 </button>

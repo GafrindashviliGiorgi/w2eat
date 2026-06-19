@@ -11,8 +11,9 @@ import {
 } from "../features/recipes/api/recipeApi";
 import { useAuth } from "../features/auth/context/useAuth";
 import defaultPhoto from "../../design/photoDeatails/defaultPhoto.png";
+import { useLanguage } from "../features/i18n/context/useLanguage";
 
-const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+const DEFAULT_AVATAR = defaultPhoto;
 
 const formatLabel = (value) => {
   if (!value) return "Not specified";
@@ -59,6 +60,7 @@ const RecipeDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { t, language } = useLanguage();
 
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -88,7 +90,7 @@ const RecipeDetails = () => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "";
 
-    return date.toLocaleString("en-US", {
+    return date.toLocaleString(language === "ka" ? "ka-GE" : "en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -173,7 +175,7 @@ const RecipeDetails = () => {
 
     const text = commentText.trim();
     if (!text) {
-      toast.error("Comment cannot be empty");
+      toast.error(t("Comment cannot be empty"));
       return;
     }
 
@@ -222,14 +224,14 @@ const RecipeDetails = () => {
     }
 
     if (!canManageRecipe) {
-      toast.error("You can only delete your own recipe");
+      toast.error(t("You can only delete your own recipe"));
       return;
     }
 
     const recipeId = recipe?._id || recipe?.id || id;
 
     if (!recipeId) {
-      toast.error("Recipe ID is missing");
+      toast.error(t("Recipe ID is missing"));
       console.error("Delete failed: missing recipe id", { recipe, routeId: id });
       return;
     }
@@ -239,7 +241,7 @@ const RecipeDetails = () => {
       const authToken = user?.token || user?.accessToken;
       await deleteRecipe(recipeId, authToken);
 
-      toast.success("Recipe deleted successfully");
+      toast.success(t("Recipe deleted successfully"));
       navigate("/recipes");
     } catch (err) {
       console.error("Failed to delete recipe", err);
@@ -298,7 +300,7 @@ const RecipeDetails = () => {
   const handleCommentEditSave = async (commentId) => {
     const text = editingCommentText.trim();
     if (!text) {
-      toast.error("Comment cannot be empty");
+      toast.error(t("Comment cannot be empty"));
       return;
     }
     try {
@@ -311,7 +313,7 @@ const RecipeDetails = () => {
       );
       setEditingCommentId(null);
       setEditingCommentText("");
-      toast.success("Comment updated");
+      toast.success(t("Comment updated"));
     } catch (err) {
       toast.error(err.message || "Failed to update comment");
     } finally {
@@ -328,7 +330,7 @@ const RecipeDetails = () => {
       setCommentActionLoading(true);
       await deleteComment(commentId);
       setComments((prev) => prev.filter((c) => c._id !== commentId));
-      toast.success("Comment deleted");
+      toast.success(t("Comment deleted"));
     } catch (err) {
       toast.error(err.message || "Failed to delete comment");
     } finally {
@@ -376,7 +378,7 @@ const RecipeDetails = () => {
   if (loading) {
     return (
       <div className="min-h-[calc(100vh-72px)] bg-[#fffaf5] px-6 py-14 text-center text-lg font-bold text-[#071739]">
-        Loading recipe...
+        {t("Loading recipe...")}
       </div>
     );
   }
@@ -385,7 +387,7 @@ const RecipeDetails = () => {
     return (
       <div className="min-h-[calc(100vh-72px)] bg-[#fffaf5] px-6 py-14 text-center">
         <p className="mx-auto max-w-xl rounded-[8px] border border-[#efe7dd] bg-white px-5 py-4 font-semibold text-[#3d465a] shadow-sm">
-          Recipe not found
+        {t("Recipe not found")}
         </p>
       </div>
     );
@@ -407,7 +409,7 @@ const RecipeDetails = () => {
               <path d="m15 18-6-6 6-6" />
               <path d="M20 12H9" />
             </svg>
-            Back to Recipes
+            {t("Back to Recipes")}
           </Link>
 
           {canManageRecipe && (
@@ -424,7 +426,7 @@ const RecipeDetails = () => {
                   <path d="M12 20h9" />
                   <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
                 </svg>
-                Edit Recipe
+                {t("Edit Recipe")}
               </Link>
 
               <button
@@ -444,7 +446,7 @@ const RecipeDetails = () => {
                   <path d="M10 11v5" />
                   <path d="M14 11v5" />
                 </svg>
-                {deleting ? "Deleting..." : "Delete Recipe"}
+                {deleting ? t("Deleting...") : t("Delete Recipe")}
               </button>
             </div>
           )}
@@ -504,10 +506,10 @@ const RecipeDetails = () => {
               <span className="text-base font-extrabold text-[#071739]">
                 {likes + dislikes > 0
                   ? `${likes} likes, ${dislikes} dislikes`
-                  : "No ratings yet"}
+                  : t("No ratings yet")}
               </span>
               <span className="rounded-full bg-[#e8f7d9] px-5 py-2 text-sm font-extrabold text-[#28851c]">
-                {recipe.isPublished === false ? "Private" : "Public"}
+                {recipe.isPublished === false ? t("Private") : t("Public")}
               </span>
             </div>
 
@@ -517,9 +519,9 @@ const RecipeDetails = () => {
 
             <div className="mt-7 grid gap-3 sm:grid-cols-3">
               {[
-                ["Cook Time", recipe.cookTime ? `${recipe.cookTime} min` : "Not set"],
-                ["Servings", recipe.servings || "Not set"],
-                ["Difficulty", formatLabel(recipe.difficulty)],
+                [t("Cook Time"), recipe.cookTime ? `${recipe.cookTime} min` : t("Not set")],
+                [t("Servings"), recipe.servings || t("Not set")],
+                [t("Difficulty"), formatLabel(recipe.difficulty)],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -545,11 +547,11 @@ const RecipeDetails = () => {
                   <LeafIcon />
                 </SectionIcon>
                 <h2 className="text-xl font-extrabold text-[#071739]">
-                  Ingredients
+                  {t("Ingredients")}
                 </h2>
               </div>
               <span className="rounded-[8px] border border-[#d9ebca] bg-[#fbfff8] px-4 py-2 text-sm font-extrabold text-[#2b7c26]">
-                {ingredients.length} items
+                {ingredients.length} {t("items")}
               </span>
             </div>
 
@@ -571,7 +573,7 @@ const RecipeDetails = () => {
                 ))
               ) : (
                 <p className="rounded-[8px] border border-dashed border-[#dbe1ea] px-4 py-8 text-center font-semibold text-[#526078]">
-                  No ingredients added.
+                  {t("No ingredients added.")}
                 </p>
               )}
             </div>
@@ -583,13 +585,13 @@ const RecipeDetails = () => {
                 <LeafIcon />
               </SectionIcon>
               <h2 className="text-xl font-extrabold text-[#071739]">
-                Additional Details
+                {t("Additional Details")}
               </h2>
             </div>
 
             <div className="mt-7">
               <h3 className="text-base font-extrabold text-[#071739]">
-                Dietary Tags
+                {t("Dietary Tags")}
               </h3>
               <div className="mt-4 flex flex-wrap gap-3">
                 {tags.length > 0 ? (
@@ -603,7 +605,7 @@ const RecipeDetails = () => {
                   ))
                 ) : (
                   <span className="rounded-[8px] border border-[#dbe1ea] bg-white px-5 py-3 text-base font-semibold text-[#3d465a]">
-                    No tags
+                    {t("No tags")}
                   </span>
                 )}
               </div>
@@ -611,7 +613,7 @@ const RecipeDetails = () => {
 
             <div className="mt-7 border-t border-[#eef0f4] pt-7">
               <h3 className="text-base font-extrabold text-[#071739]">
-                Category
+                {t("Category")}
               </h3>
               <span className="mt-4 inline-flex rounded-[8px] border border-[#dbe1ea] bg-white px-5 py-3 text-base font-semibold text-[#3d465a]">
                 {formatLabel(recipe.category)}
@@ -620,7 +622,7 @@ const RecipeDetails = () => {
 
             <div className="mt-7 border-t border-[#eef0f4] pt-7">
               <h3 className="text-base font-extrabold text-[#071739]">
-                Status
+                {t("Status")}
               </h3>
               <span className="mt-4 inline-flex rounded-[8px] border border-[#d9ebca] bg-[#fbfff8] px-5 py-3 text-base font-extrabold text-[#2b7c26]">
                 {formatLabel(recipe.approvalStatus || "approved")}
@@ -636,7 +638,7 @@ const RecipeDetails = () => {
                 <LeafIcon />
               </SectionIcon>
               <h2 className="text-lg font-extrabold text-[#071739]">
-                Recipe Stats
+                {t("Recipe Stats")}
               </h2>
             </div>
             <div className="mt-7 grid grid-cols-2 gap-5">
@@ -645,7 +647,7 @@ const RecipeDetails = () => {
                   {likes}
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[#526078]">
-                  Likes
+                  {t("Likes")}
                 </p>
               </div>
               <div>
@@ -653,7 +655,7 @@ const RecipeDetails = () => {
                   {dislikes}
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[#526078]">
-                  Dislikes
+                  {t("Dislikes")}
                 </p>
               </div>
             </div>
@@ -663,10 +665,10 @@ const RecipeDetails = () => {
             <div className="flex items-center justify-between gap-4 pb-5">
               <div>
                 <h3 className="text-base font-extrabold text-[#071739]">
-                  Like this recipe
+                  {t("Like this recipe")}
                 </h3>
                 <p className="mt-1 text-sm font-semibold text-[#526078]">
-                  Save a positive reaction for this recipe.
+                  {t("Save a positive reaction for this recipe.")}
                 </p>
               </div>
               <button
@@ -675,7 +677,7 @@ const RecipeDetails = () => {
                 className={`h-9 w-16 rounded-full p-1 transition disabled:cursor-not-allowed disabled:opacity-60 ${
                   isLiked ? "bg-[#59ae22]" : "bg-[#dbe1ea]"
                 }`}
-                aria-label="Like recipe"
+                aria-label={t("Like recipe")}
               >
                 <span
                   className={`block h-7 w-7 rounded-full bg-white shadow transition ${
@@ -687,10 +689,10 @@ const RecipeDetails = () => {
             <div className="flex items-center justify-between gap-4 pt-5">
               <div>
                 <h3 className="text-base font-extrabold text-[#071739]">
-                  Not for you
+                  {t("Not for you")}
                 </h3>
                 <p className="mt-1 text-sm font-semibold text-[#526078]">
-                  Mark this recipe as not matching your taste.
+                  {t("Mark this recipe as not matching your taste.")}
                 </p>
               </div>
               <button
@@ -699,7 +701,7 @@ const RecipeDetails = () => {
                 className={`h-9 w-16 rounded-full p-1 transition disabled:cursor-not-allowed disabled:opacity-60 ${
                   isDisliked ? "bg-[#ed3317]" : "bg-[#dbe1ea]"
                 }`}
-                aria-label="Dislike recipe"
+                aria-label={t("Dislike recipe")}
               >
                 <span
                   className={`block h-7 w-7 rounded-full bg-white shadow transition ${
@@ -738,7 +740,7 @@ const RecipeDetails = () => {
               </svg>
             </SectionIcon>
             <h2 className="text-xl font-extrabold text-[#071739]">
-              Description
+              {t("Description")}
             </h2>
           </div>
           <p className="mt-5 max-w-[1100px] text-base font-semibold leading-8 text-[#526078]">
@@ -761,7 +763,7 @@ const RecipeDetails = () => {
               </svg>
             </SectionIcon>
             <h2 className="text-xl font-extrabold text-[#071739]">
-              Recipe Instructions
+              {t("Recipe Instructions")}
             </h2>
           </div>
 
@@ -783,7 +785,7 @@ const RecipeDetails = () => {
                 ))
               ) : (
                 <p className="rounded-[8px] border border-dashed border-[#dbe1ea] px-4 py-8 text-center font-semibold text-[#526078]">
-                  No instructions added.
+                  {t("No instructions added.")}
                 </p>
               )}
             </div>
@@ -821,30 +823,30 @@ const RecipeDetails = () => {
               </svg>
             </SectionIcon>
             <h2 className="text-xl font-extrabold text-[#071739]">
-              Recipe Information
+              {t("Recipe Information")}
             </h2>
           </div>
 
           <div className="mt-6 grid gap-5 md:grid-cols-3">
             <div>
               <h3 className="text-base font-extrabold text-[#071739]">
-                Created At
+                {t("Created At")}
               </h3>
               <p className="mt-2 text-base font-semibold text-[#526078]">
-                {createdAt || "Not available"}
+                {createdAt || t("Not available")}
               </p>
             </div>
             <div>
               <h3 className="text-base font-extrabold text-[#071739]">
-                Updated At
+                {t("Updated At")}
               </h3>
               <p className="mt-2 text-base font-semibold text-[#526078]">
-                {updatedAt || "Not available"}
+                {updatedAt || t("Not available")}
               </p>
             </div>
             <div>
               <h3 className="text-base font-extrabold text-[#071739]">
-                Recipe ID
+                {t("Recipe ID")}
               </h3>
               <p className="mt-2 break-all text-base font-semibold text-[#526078]">
                 {recipe._id}
@@ -855,7 +857,9 @@ const RecipeDetails = () => {
 
         <section className="mt-6 rounded-[8px] border border-[#e6dfd6] bg-white shadow-[0_14px_34px_rgba(7,23,57,0.06)]">
           <div className="flex items-center justify-between border-b border-[#eef0f4] px-6 py-5">
-            <h2 className="text-xl font-extrabold text-[#071739]">Comments</h2>
+            <h2 className="text-xl font-extrabold text-[#071739]">
+              {t("Comments")}
+            </h2>
             <span className="rounded-full bg-[#fff0e9] px-4 py-1.5 text-sm font-extrabold text-[#ed3317]">
               {comments.length}
             </span>
@@ -869,7 +873,7 @@ const RecipeDetails = () => {
               htmlFor="commentText"
               className="mb-3 block text-base font-extrabold text-[#071739]"
             >
-              Add your comment
+              {t("Add your comment")}
             </label>
             <textarea
               id="commentText"
@@ -877,7 +881,7 @@ const RecipeDetails = () => {
               rows={3}
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Write something helpful about this recipe..."
+              placeholder={t("Write something helpful about this recipe...")}
               className="w-full resize-none rounded-[8px] border border-[#dbe1ea] bg-white px-4 py-3 text-base font-semibold text-[#071739] outline-none transition placeholder:text-[#8b94a4] focus:border-[#ed3317] focus:ring-2 focus:ring-[#ffddd6]"
             />
 
@@ -887,7 +891,7 @@ const RecipeDetails = () => {
                 disabled={commentSubmitting}
                 className="h-[48px] rounded-[8px] bg-[#ed3317] px-6 text-base font-extrabold text-white shadow-[0_12px_24px_rgba(237,51,23,0.22)] transition hover:bg-[#d82b12] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {commentSubmitting ? "Posting..." : "Post comment"}
+                {commentSubmitting ? t("Posting...") : t("Post Comment")}
               </button>
             </div>
           </form>
@@ -895,7 +899,7 @@ const RecipeDetails = () => {
           <div className="space-y-4 p-6">
             {commentsLoading ? (
               <p className="text-base font-semibold text-[#526078]">
-                Loading comments...
+                {t("Loading comments...")}
               </p>
             ) : comments.length > 0 ? (
               comments.map((comment) => {
@@ -925,7 +929,7 @@ const RecipeDetails = () => {
                           {username}
                           {isAdmin && comment?.user?._id !== user?._id && (
                             <span className="ml-2 rounded bg-[#fff0e9] px-2 py-1 text-xs font-extrabold text-[#ed3317]">
-                              admin
+                              {t("Admin")}
                             </span>
                           )}
                         </p>
@@ -942,14 +946,14 @@ const RecipeDetails = () => {
                                 onClick={() => handleCommentEdit(comment)}
                                 className="text-sm font-extrabold text-[#071739] transition hover:text-[#ed3317]"
                               >
-                                Edit
+                                {t("Edit")}
                               </button>
                               <button
                                 onClick={() => handleCommentDelete(comment._id)}
                                 disabled={commentActionLoading}
                                 className="text-sm font-extrabold text-[#ed3317] transition hover:text-[#c92913] disabled:opacity-50"
                               >
-                                Delete
+                                {t("Delete")}
                               </button>
                             </>
                           )}
@@ -971,20 +975,20 @@ const RecipeDetails = () => {
                             onClick={handleCommentEditCancel}
                             className="h-10 rounded-[8px] border border-[#dbe1ea] px-4 text-sm font-extrabold text-[#071739]"
                           >
-                            Cancel
+                            {t("Cancel")}
                           </button>
                           <button
                             onClick={() => handleCommentEditSave(comment._id)}
                             disabled={commentActionLoading}
                             className="h-10 rounded-[8px] bg-[#ed3317] px-4 text-sm font-extrabold text-white transition hover:bg-[#d82b12] disabled:opacity-60"
                           >
-                            {commentActionLoading ? "Saving..." : "Save"}
+                            {commentActionLoading ? t("Saving...") : t("Save")}
                           </button>
                         </div>
                       </div>
                     ) : (
                       <p className="rounded-[8px] bg-[#fffaf5] p-4 text-base font-semibold leading-7 text-[#526078]">
-                        {comment?.text || "No comment text"}
+                        {comment?.text || t("No comment text")}
                       </p>
                     )}
                   </article>
@@ -993,7 +997,7 @@ const RecipeDetails = () => {
             ) : (
               <div className="rounded-[8px] border border-dashed border-[#edcfc7] bg-[#fffaf5] p-7 text-center">
                 <p className="text-base font-semibold text-[#526078]">
-                  No comments yet. Be the first one to leave feedback.
+                  {t("No comments yet. Be the first one to leave feedback.")}
                 </p>
               </div>
             )}
@@ -1013,7 +1017,7 @@ const RecipeDetails = () => {
               <path d="m15 18-6-6 6-6" />
               <path d="M20 12H9" />
             </svg>
-            Back to Recipes
+            {t("Back to Recipes")}
           </Link>
           {canManageRecipe ? (
             <Link
@@ -1028,7 +1032,7 @@ const RecipeDetails = () => {
                 <path d="M12 20h9" />
                 <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
               </svg>
-              Edit Recipe
+              {t("Edit Recipe")}
             </Link>
           ) : (
             <button
@@ -1037,7 +1041,7 @@ const RecipeDetails = () => {
               disabled={likeLoading}
               className="inline-flex h-[58px] items-center justify-center gap-3 rounded-[8px] bg-[#ed3317] text-base font-extrabold text-white shadow-[0_14px_28px_rgba(237,51,23,0.24)] transition hover:bg-[#d82b12] disabled:opacity-60"
             >
-              Like Recipe
+              {t("Like Recipe")}
             </button>
           )}
         </div>
@@ -1059,7 +1063,7 @@ const RecipeDetails = () => {
               event.stopPropagation();
               closeImagePreview();
             }}
-            aria-label="Close enlarged photo"
+            aria-label={t("Close enlarged photo")}
           >
             x
           </button>

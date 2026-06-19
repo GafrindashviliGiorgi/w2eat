@@ -61,3 +61,30 @@ export const changePassword = async (data) =>
       newPassword: data.newPassword,
     }),
   });
+
+export const updateProfilePicture = async (file) => {
+  const formData = new FormData();
+  formData.append("pfp", file);
+
+  const response = await fetch(`${AUTH_BASE_URL}/profile/pfp`, {
+    method: "PUT",
+    credentials: "include",
+    body: formData,
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  const result = contentType.includes("application/json")
+    ? await response.json()
+    : {};
+
+  if (!response.ok) {
+    throw new Error(result.message || "Unable to update profile picture");
+  }
+
+  return result;
+};
+
+export const removeProfilePicture = async () =>
+  fetchAuthJson(`${AUTH_BASE_URL}/profile/pfp`, {
+    method: "DELETE",
+  });

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { changePassword } from "../features/auth/api/authApi";
 import changePasswordVisual from "../../design/photoDeatails/changepasicon.png";
+import { useLanguage } from "../features/i18n/context/useLanguage";
 
 const MIN_PASSWORD_LENGTH = 6;
 
@@ -95,6 +96,7 @@ const BackArrowIcon = () => (
 
 const ChangePassword = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -112,19 +114,21 @@ const ChangePassword = () => {
     const next = {};
 
     if (!form.currentPassword) {
-      next.currentPassword = "Current password is required";
+      next.currentPassword = t("Current password is required");
     }
 
     if (!form.newPassword) {
-      next.newPassword = "New password is required";
+      next.newPassword = t("New password is required");
     } else if (form.newPassword.length < MIN_PASSWORD_LENGTH) {
-      next.newPassword = `New password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+      next.newPassword = t("New password must be at least {{count}} characters", {
+        count: MIN_PASSWORD_LENGTH,
+      });
     }
 
     if (!form.confirmNewPassword) {
-      next.confirmNewPassword = "Please confirm your new password";
+      next.confirmNewPassword = t("Please confirm your new password");
     } else if (form.newPassword !== form.confirmNewPassword) {
-      next.confirmNewPassword = "Passwords do not match";
+      next.confirmNewPassword = t("Passwords do not match");
     }
 
     return next;
@@ -145,7 +149,7 @@ const ChangePassword = () => {
         currentPassword: form.currentPassword,
         newPassword: form.newPassword,
       });
-      toast.success("Password changed successfully");
+      toast.success(t("Password changed successfully"));
       navigate("/");
     } catch (err) {
       if (
@@ -153,9 +157,9 @@ const ChangePassword = () => {
         err.message?.toLowerCase().includes("wrong") ||
         err.message?.toLowerCase().includes("invalid")
       ) {
-        setErrors({ currentPassword: err.message });
+        setErrors({ currentPassword: t(err.message) });
       } else {
-        toast.error(err.message || "Failed to change password");
+        toast.error(t(err.message || "Failed to change password"));
       }
     } finally {
       setLoading(false);
@@ -171,10 +175,10 @@ const ChangePassword = () => {
             style={{ backgroundImage: `url(${changePasswordVisual})` }}
           />
           <h1 className="mt-10 max-w-sm text-4xl font-extrabold leading-tight text-[#051943]">
-            Keep Your Account Secure
+            {t("Keep Your Account Secure")}
           </h1>
           <p className="mt-5 max-w-sm text-lg leading-8 text-slate-600">
-            Choose a strong password and don't share it with anyone.
+            {t("Choose a strong password and don't share it with anyone.")}
           </p>
         </aside>
 
@@ -186,10 +190,10 @@ const ChangePassword = () => {
           >
             <div>
               <h2 className="text-4xl font-extrabold text-[#051943]">
-                Change Password
+                {t("Change Password")}
               </h2>
               <p className="mt-4 text-base text-slate-600">
-                Update your password to keep your account secure.
+                {t("Update your password to keep your account secure.")}
               </p>
             </div>
 
@@ -198,7 +202,7 @@ const ChangePassword = () => {
                 htmlFor="currentPassword"
                 className="mb-2 block text-sm font-semibold text-[#07183a]"
               >
-                Current Password
+                {t("Current Password")}
               </label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2">
@@ -210,7 +214,7 @@ const ChangePassword = () => {
                   name="currentPassword"
                   value={form.currentPassword}
                   onChange={handleChange}
-                  placeholder="Enter your current password"
+                  placeholder={t("Enter your current password")}
                   className={`h-14 w-full rounded-md border bg-white px-14 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 ${
                     errors.currentPassword
                       ? "border-red-400"
@@ -234,7 +238,7 @@ const ChangePassword = () => {
                 htmlFor="newPassword"
                 className="mb-2 block text-sm font-semibold text-[#07183a]"
               >
-                New Password
+                {t("New Password")}
               </label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2">
@@ -246,7 +250,7 @@ const ChangePassword = () => {
                   name="newPassword"
                   value={form.newPassword}
                   onChange={handleChange}
-                  placeholder="Enter your new password"
+                  placeholder={t("Enter your new password")}
                   className={`h-14 w-full rounded-md border bg-white px-14 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 ${
                     errors.newPassword ? "border-red-400" : "border-slate-200"
                   }`}
@@ -268,7 +272,7 @@ const ChangePassword = () => {
                 htmlFor="confirmNewPassword"
                 className="mb-2 block text-sm font-semibold text-[#07183a]"
               >
-                Confirm New Password
+                {t("Confirm New Password")}
               </label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2">
@@ -280,7 +284,7 @@ const ChangePassword = () => {
                   name="confirmNewPassword"
                   value={form.confirmNewPassword}
                   onChange={handleChange}
-                  placeholder="Confirm your new password"
+                  placeholder={t("Confirm your new password")}
                   className={`h-14 w-full rounded-md border bg-white px-14 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 ${
                     errors.confirmNewPassword
                       ? "border-red-400"
@@ -303,14 +307,16 @@ const ChangePassword = () => {
               <ShieldIcon />
               <div>
                 <p className="font-bold text-[#07183a]">
-                  Password must contain:
+                  {t("Password must contain:")}
                 </p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {[
-                    `At least ${MIN_PASSWORD_LENGTH} characters`,
-                    "One uppercase letter",
-                    "One number",
-                    "One special character",
+                    t("At least {{count}} characters", {
+                      count: MIN_PASSWORD_LENGTH,
+                    }),
+                    t("One uppercase letter"),
+                    t("One number"),
+                    t("One special character"),
                   ].map((requirement) => (
                     <span
                       key={requirement}
@@ -329,7 +335,7 @@ const ChangePassword = () => {
               disabled={loading}
               className="h-14 w-full rounded-md bg-[#ff2f08] text-lg font-bold text-white shadow-[0_10px_24px_rgba(255,47,8,0.22)] transition hover:bg-[#ef2803] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Changing..." : "Update Password"}
+              {loading ? t("Changing...") : t("Update Password")}
             </button>
 
             <button
@@ -338,7 +344,7 @@ const ChangePassword = () => {
               className="mx-auto flex items-center gap-2 text-sm font-semibold text-[#ff2f08] transition hover:text-[#d92707]"
             >
               <BackArrowIcon />
-              Back to Profile
+              {t("Back to Profile")}
             </button>
           </form>
         </div>

@@ -1,4 +1,5 @@
 const cloudinary = require("./cloudinary");
+const multer = require("multer");
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB per image
 const MAX_IMAGES_COUNT = 8;
@@ -9,6 +10,23 @@ const ALLOWED_IMAGE_MIME_TYPES = new Set([
   "image/webp",
   // .jpeg .jpg .png .webp გაფართოებების მხარდაჭერა MIME ტიპების გარეშე
 ]);
+
+const memoryUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_IMAGE_BYTES, files: 1 },
+  fileFilter: (_req, file, callback) => {
+    if (!ALLOWED_IMAGE_MIME_TYPES.has(file.mimetype.toLowerCase())) {
+      callback(
+        createValidationError(
+          "Unsupported image type. Allowed: jpeg, png, webp",
+        ),
+      );
+      return;
+    }
+
+    callback(null, true);
+  },
+});
 
 const createValidationError = (message, statusCode = 400) => {
   const error = new Error(message);
@@ -112,6 +130,87 @@ const uploadBase64Image = async (imageData) => {
   return uploadResponse.secure_url;
 };
 
+const uploadImageBuffer = (file) => {
+  if (!file?.buffer) {
+    throw createValidationError("Profile picture is required");
+  }
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "profile-pictures",
+        resource_type: "image",
+        transformation: [
+          { width: 600, height: 600, crop: "fill", gravity: "face" },
+          { quality: "auto", fetch_format: "auto" },
+        ],
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(result.secure_url);
+      },
+    );
+
+    uploadStream.end(file.buffer);
+  });
+};
+
+const getProfileImagePublicId = (imageUrl) => {
+  if (!imageUrl) return null;
+
+  try {
+    const parsedUrl = new URL(imageUrl);
+    if (!parsedUrl.hostname.endsWith("cloudinary.com")) return null;
+
+    const uploadMarker = "/image/upload/";
+    const uploadIndex = parsedUrl.pathname.indexOf(uploadMarker);
+    if (uploadIndex === -1) return null;
+
+    const uploadPath = decodeURIComponent(
+      parsedUrl.pathname.slice(uploadIndex + uploadMarker.length),
+    );
+    const segments = uploadPath.split("/").filter(Boolean);
+    const profileFolderIndex = segments.indexOf("profile-pictures");
+    if (profileFolderIndex === -1) return null;
+
+    const publicIdWithExtension = segments.slice(profileFolderIndex).join("/");
+    return publicIdWithExtension.replace(/\.[a-zA-Z0-9]+$/, "");
+  } catch {
+    return null;
+  }
+};
+
+const deleteUploadedProfileImage = async (imageUrl) => {
+  const publicId = getProfileImagePublicId(imageUrl);
+  if (!publicId) return false;
+
+  await cloudinary.uploader.destroy(publicId, {
+    resource_type: "image",
+    invalidate: true,
+  });
+  return true;
+};
+
+const uploadProfilePicture = (req, res, next) => {
+  memoryUpload.single("pfp")(req, res, (error) => {
+    if (!error) {
+      next();
+      return;
+    }
+
+    const isFileTooLarge = error.code === "LIMIT_FILE_SIZE";
+    res.status(isFileTooLarge ? 413 : error.statusCode || 400).json({
+      message: isFileTooLarge
+        ? "Profile picture must be 5MB or smaller"
+        : error.message || "Unable to process profile picture",
+    });
+  });
+};
+
 const uploadImagesArray = async (imagesInput) => {
   if (!Array.isArray(imagesInput)) return undefined;
 
@@ -131,4 +230,7 @@ const uploadImagesArray = async (imagesInput) => {
 module.exports = {
   uploadBase64Image,
   uploadImagesArray,
+  uploadImageBuffer,
+  uploadProfilePicture,
+  deleteUploadedProfileImage,
 };

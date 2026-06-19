@@ -32,6 +32,71 @@ const compactInputClass =
 const panelClass =
   "rounded-[12px] border border-[#ece5dc] bg-white/95 shadow-[0_16px_42px_rgba(7,23,57,0.08)]";
 
+const MAX_IMAGE_DIMENSION = 1600;
+const TARGET_IMAGE_SIZE = 600 * 1024;
+
+const blobToDataUrl = (blob) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+
+const loadImage = (file) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Failed to load image"));
+    };
+    image.src = objectUrl;
+  });
+
+const canvasToBlob = (canvas, quality) =>
+  new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) =>
+        blob ? resolve(blob) : reject(new Error("Failed to compress image")),
+      "image/webp",
+      quality,
+    );
+  });
+
+const optimizeImage = async (file) => {
+  const image = await loadImage(file);
+  const initialScale = Math.min(
+    1,
+    MAX_IMAGE_DIMENSION / Math.max(image.naturalWidth, image.naturalHeight),
+  );
+  let width = Math.max(1, Math.round(image.naturalWidth * initialScale));
+  let height = Math.max(1, Math.round(image.naturalHeight * initialScale));
+  let quality = 0.82;
+  let blob;
+
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext("2d").drawImage(image, 0, 0, width, height);
+    blob = await canvasToBlob(canvas, quality);
+
+    if (blob.size <= TARGET_IMAGE_SIZE) break;
+
+    width = Math.max(1, Math.round(width * 0.82));
+    height = Math.max(1, Math.round(height * 0.82));
+    quality = Math.max(0.5, quality - 0.06);
+  }
+
+  return blobToDataUrl(blob);
+};
+
 const SectionTitle = ({ icon, title }) => (
   <div className="mb-6 flex items-center gap-3">
     <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-[#fff0e9]">
@@ -158,7 +223,7 @@ const AddRecipeForm = () => {
     });
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
@@ -169,16 +234,18 @@ const AddRecipeForm = () => {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result;
+    try {
+      const base64 = await optimizeImage(file);
       setImagePreview(base64);
       setForm((prev) => ({
         ...prev,
         image: base64,
       }));
-    };
-    reader.readAsDataURL(file);
+      setMessage("");
+    } catch {
+      setMessage(t("Failed to process selected image"));
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const handleImagesChange = async (e) => {
@@ -192,21 +259,14 @@ const AddRecipeForm = () => {
       return;
     }
 
-    const toBase64 = (file) =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
     try {
-      const base64Images = await Promise.all(files.map(toBase64));
+      const base64Images = await Promise.all(files.map(optimizeImage));
       setImagesPreview(base64Images);
       setForm((prev) => ({
         ...prev,
         images: base64Images,
       }));
+      setMessage("");
     } catch {
       setMessage(t("Failed to process selected images"));
     }

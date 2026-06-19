@@ -6,6 +6,7 @@ import defaultProfilePicture, {
   hasCustomProfilePicture,
   resolveProfilePicture,
 } from "../features/auth/utils/profilePicture";
+import { useTheme } from "../shared/context/useTheme";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -19,6 +20,7 @@ const ProfileSettings = () => {
     setLanguage,
     t,
   } = useAuth();
+  const { theme, setTheme } = useTheme();
   const inputRef = useRef(null);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(() =>
@@ -209,6 +211,96 @@ const ProfileSettings = () => {
                 );
               })}
             </div>
+          </section>
+
+          <section className="mt-9 border-t border-[#efe7dd] pt-7">
+            <h2 className="text-xl font-black text-[#071739]">
+              {t("Appearance")}
+            </h2>
+            <p className="mt-1 text-sm font-semibold text-[#697184]">
+              {t("Choose how W2Eat looks across the application.")}
+            </p>
+            <div
+              className="mt-5 grid gap-3 sm:grid-cols-2"
+              role="group"
+              aria-label={t("Theme preference")}
+            >
+              {[
+                {
+                  value: "light",
+                  label: "Light Mode",
+                  description: "Warm and bright",
+                },
+                {
+                  value: "dark",
+                  label: "Dark Mode",
+                  description: "Deep slate and focused",
+                },
+              ].map((option) => {
+                const isActive = theme === option.value;
+                const isDarkOption = option.value === "dark";
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setTheme(option.value)}
+                    aria-pressed={isActive}
+                    className={`group flex min-h-20 items-center gap-4 rounded-xl border-2 px-5 py-4 text-left outline-none transition-all duration-500 hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-[#ed3317]/20 ${
+                      isActive
+                        ? "border-[#ed3317] bg-[#fff3ef] shadow-[0_10px_26px_rgba(237,51,23,0.12)]"
+                        : "border-[#e5e7eb] bg-white hover:border-[#f2a68f]"
+                    }`}
+                  >
+                    <span
+                      className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition-all duration-500 ${
+                        isActive
+                          ? "rotate-0 bg-[#ed3317] text-white"
+                          : "bg-[#f4f6fa] text-[#697184] group-hover:rotate-12"
+                      }`}
+                    >
+                      {isDarkOption ? (
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          className="h-5 w-5 fill-current stroke-current stroke-1.5"
+                        >
+                          <path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z" />
+                        </svg>
+                      ) : (
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          className="h-5 w-5 fill-none stroke-current stroke-2"
+                        >
+                          <circle cx="12" cy="12" r="4" />
+                          <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-black text-[#071739]">
+                        {t(option.label)}
+                      </span>
+                      <span className="mt-1 block text-xs font-semibold text-[#697184]">
+                        {t(option.description)}
+                      </span>
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className={`ml-auto h-3 w-3 shrink-0 rounded-full border-2 transition-all duration-300 ${
+                        isActive
+                          ? "border-[#ed3317] bg-[#ed3317] shadow-[0_0_0_4px_rgba(237,51,23,0.12)]"
+                          : "border-[#c4cbd5] bg-transparent"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-3 text-xs font-semibold text-[#7c8494]">
+              {t("Your theme preference is saved automatically.")}
+            </p>
           </section>
 
           <div className="mt-9 flex flex-col-reverse gap-3 border-t border-[#efe7dd] pt-6 sm:flex-row sm:justify-end">

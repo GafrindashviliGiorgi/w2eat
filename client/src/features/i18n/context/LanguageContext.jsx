@@ -396,6 +396,16 @@ const ka = {
   "Uploaded by:": "ატვირთა:",
   By: "ავტორი:",
   "Community member": "საზოგადოების წევრი",
+  Appearance: "გარეგნობა",
+  "Choose how W2Eat looks across the application.":
+    "აირჩიე, როგორ გამოჩნდეს W2Eat მთელ აპლიკაციაში.",
+  "Theme preference": "თემის არჩევანი",
+  "Light Mode": "ნათელი რეჟიმი",
+  "Dark Mode": "ბნელი რეჟიმი",
+  "Warm and bright": "თბილი და ნათელი",
+  "Deep slate and focused": "მუქი და კონცენტრირებული",
+  "Your theme preference is saved automatically.":
+    "თემის არჩევანი ავტომატურად ინახება.",
 };
 
 const translations = { en: {}, ka };

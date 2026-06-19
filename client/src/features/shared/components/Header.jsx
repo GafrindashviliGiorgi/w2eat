@@ -33,7 +33,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#ffbc70]/45 bg-gradient-to-r from-[#f15a1d] via-[#f47b20] to-[#ffad32] py-3 pl-0 pr-4 text-white shadow-[0_14px_38px_rgba(160,57,8,0.22)] sm:pl-0 sm:pr-6 lg:pl-0 lg:pr-8">
+    <header className="app-header sticky top-0 z-50 w-full border-b border-[#ffbc70]/45 bg-gradient-to-r from-[#f15a1d] via-[#f47b20] to-[#ffad32] py-3 pl-0 pr-4 text-white shadow-[0_14px_38px_rgba(160,57,8,0.22)] sm:pl-0 sm:pr-6 lg:pl-0 lg:pr-8">
       <div className="flex w-full items-center justify-between gap-5">
         <Link
           to="/"

@@ -104,8 +104,8 @@ const Home = () => {
   }, [favoriteSearchQuery, favorites]);
 
   return (
-    <div className="min-h-[calc(100vh-88px)] bg-[#fffaf5] text-[#071739]">
-      <section className="relative mx-auto grid w-full max-w-[1360px] gap-8 px-6 pb-6 pt-9 sm:px-8 lg:h-[490px] lg:grid-cols-[610px_minmax(0,1fr)] lg:px-8 lg:pb-0 lg:pt-11 xl:px-10">
+    <div className="h-auto min-h-[calc(100vh-88px)] bg-[#fffaf5] text-[#071739]">
+      <section className="relative mx-auto grid w-full max-w-[1360px] gap-8 px-6 pb-6 pt-9 sm:px-8 lg:min-h-[490px] lg:grid-cols-[610px_minmax(0,1fr)] lg:px-8 lg:pb-0 lg:pt-11 xl:px-10">
         <div className="relative z-10 flex flex-col justify-center">
           <div className="mb-4 inline-flex h-9 w-fit items-center gap-2.5 rounded-full bg-[#eff8df] px-4 text-sm font-extrabold uppercase text-[#4f8b16] shadow-[0_4px_12px_rgba(79,139,22,0.10)]">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full">
@@ -165,7 +165,7 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="relative min-h-[340px] lg:absolute lg:right-[-34px] lg:top-[-6px] lg:h-[500px] lg:w-[740px]">
+        <div className="relative min-h-[340px] lg:absolute lg:right-[-34px] lg:top-[-6px] lg:min-h-[500px] lg:w-[740px]">
           <img
             src={homePageDetail}
             alt=""
@@ -175,7 +175,7 @@ const Home = () => {
       </section>
 
       <section className="relative z-10 mx-auto max-w-[1280px] px-6 pt-7 sm:px-8 lg:px-8">
-        <div className="grid overflow-hidden rounded-xl border border-[#efe7dd] bg-white shadow-[0_16px_40px_rgba(7,23,57,0.10)] md:grid-cols-2 xl:h-[82px] xl:grid-cols-4">
+        <div className="grid overflow-hidden rounded-xl border border-[#efe7dd] bg-white shadow-[0_16px_40px_rgba(7,23,57,0.10)] md:grid-cols-2 xl:min-h-[82px] xl:grid-cols-4">
           {benefitItems.map((item, index) => (
             <div
               key={item.title}

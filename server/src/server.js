@@ -20,12 +20,30 @@ const app = express();
 
 // Environment variables
 const PORT = process.env.PORT || 3000;
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+const configuredClientUrls = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map((url) => url.trim())
+  .filter(Boolean);
+const developmentClientUrls = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+];
+const allowedOrigins = new Set([
+  ...(configuredClientUrls.length ? configuredClientUrls : developmentClientUrls),
+  ...(process.env.NODE_ENV === "production" ? [] : developmentClientUrls),
+]);
 
 // CORS configuration
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   }),

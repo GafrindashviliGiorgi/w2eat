@@ -54,7 +54,7 @@ const AppRoutes = () => {
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen overflow-x-hidden bg-gray-100">
+      <div className="min-h-screen overflow-x-clip bg-gray-100">
         <Header />
         <AppRoutes />
       </div>

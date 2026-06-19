@@ -32,13 +32,34 @@ html,
 body,
 #root {
   min-height: 100%;
+  width: 100%;
+  max-width: 100%;
 }
 
 body {
+  overflow-x: hidden;
   overflow-y: auto;
   margin: 0;
   background-color: var(--app-bg);
   color: var(--text-primary);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:where(main, section, article, aside, nav, div, form, fieldset) {
+  min-width: 0;
+}
+
+:where(img, picture, video, canvas, svg) {
+  max-width: 100%;
+}
+
+:where(input, textarea, select, button) {
+  max-width: 100%;
 }
 
 .app-shell {
@@ -337,5 +358,20 @@ html[data-theme="dark"] option {
 
   .route-transition {
     animation: none;
+  }
+}
+
+@media (max-width: 767px) {
+  html {
+    scroll-padding-bottom: 7rem;
+  }
+
+  :where(button, [role="button"], .app-header a) {
+    min-height: 44px;
+  }
+
+  :where(input:not([type="checkbox"]):not([type="radio"]), select) {
+    min-height: 44px;
+    font-size: 16px;
   }
 }

@@ -179,7 +179,7 @@ const ProfileSettings = () => {
               {t("Choose the language used throughout the application.")}
             </p>
             <div
-              className="mt-5 grid gap-3 sm:grid-cols-2"
+              className="mt-5 grid grid-cols-1 gap-3"
               role="group"
               aria-label={t("Change language")}
             >
@@ -221,7 +221,7 @@ const ProfileSettings = () => {
               {t("Choose how W2Eat looks across the application.")}
             </p>
             <div
-              className="mt-5 grid gap-3 sm:grid-cols-2"
+              className="mt-5 grid grid-cols-1 gap-3"
               role="group"
               aria-label={t("Theme preference")}
             >

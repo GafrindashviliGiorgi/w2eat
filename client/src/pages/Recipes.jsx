@@ -140,6 +140,7 @@ const Recipes = () => {
   const [selectedCookingTimes, setSelectedCookingTimes] = useState([]);
   const [minCalories, setMinCalories] = useState("");
   const [maxCalories, setMaxCalories] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
@@ -316,7 +317,7 @@ const Recipes = () => {
 
   return (
     <div className="min-h-[calc(100vh-72px)] w-full overflow-hidden bg-[#fffaf5] text-[#071739]">
-      <section className="relative mx-auto w-full max-w-[1440px] px-6 pb-16 pt-10 sm:px-8 lg:px-10">
+      <section className="relative mx-auto w-full max-w-[1440px] px-4 pb-16 pt-8 sm:px-6 sm:pt-10 lg:px-10">
         <img
           src={allRecipesDetail}
           alt=""
@@ -324,7 +325,7 @@ const Recipes = () => {
         />
 
         <div className="relative z-10 mb-6 max-w-[760px]">
-          <h1 className="text-[42px] font-extrabold leading-tight text-[#071739] sm:text-[48px]">
+          <h1 className="text-4xl font-extrabold leading-tight text-[#071739] sm:text-[48px]">
             {t("All Recipes")}
           </h1>
           <p className="mt-2 max-w-full text-lg font-semibold leading-7 text-[#3d465a]">
@@ -371,7 +372,10 @@ const Recipes = () => {
 
           <button
             type="button"
+            onClick={() => setFiltersOpen((open) => !open)}
             className="flex h-[58px] items-center justify-center gap-3 rounded-[8px] border border-[#e6dfd6] bg-white px-5 text-base font-extrabold text-[#071739] shadow-[0_8px_22px_rgba(7,23,57,0.04)] transition hover:border-[#ed3317]"
+            aria-expanded={filtersOpen}
+            aria-controls="recipe-filters"
           >
             <svg
               aria-hidden="true"
@@ -429,7 +433,10 @@ const Recipes = () => {
         </div>
 
         <div className="relative z-10 grid gap-6 xl:grid-cols-[250px_minmax(0,1fr)]">
-          <aside className="self-start rounded-[8px] border border-[#efe7dd] bg-white shadow-[0_16px_38px_rgba(7,23,57,0.07)]">
+          <aside
+            id="recipe-filters"
+            className={`${filtersOpen ? "block" : "hidden"} self-start rounded-[8px] border border-[#efe7dd] bg-white shadow-[0_16px_38px_rgba(7,23,57,0.07)] xl:block`}
+          >
             <div className="flex items-center justify-between border-b border-[#efe7dd] px-5 py-4">
               <h2 className="text-base font-extrabold text-[#071739]">
                 {t("Filter Recipes")}
@@ -634,7 +641,7 @@ const Recipes = () => {
           </aside>
 
           <div>
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredRecipes.map((recipe) => {
                 const tags = getRecipeTags(recipe);
                 const favorite = isFavorite(recipe);
@@ -651,7 +658,7 @@ const Recipes = () => {
                   >
                     <div className="relative">
                       <Link to={`/recipes/${recipe._id}`} className="block">
-                        <div className="relative h-[176px] overflow-hidden bg-[#f5eee5]">
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#f5eee5] sm:aspect-[16/11]">
                           <img
                             src={getRecipeImage(recipe)}
                             alt={recipe.title}

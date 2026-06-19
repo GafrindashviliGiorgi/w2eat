@@ -583,7 +583,7 @@ const AdminDashboard = () => {
                       filteredRecipes.slice(0, 5).map((recipe) => (
                         <div
                           key={recipe._id}
-                          className="grid grid-cols-[52px_minmax(0,1fr)_auto_auto] items-center gap-3 border-b border-[#eef2f7] pb-4 last:border-b-0 last:pb-0"
+                          className="grid grid-cols-[52px_minmax(0,1fr)] items-center gap-3 border-b border-[#eef2f7] pb-4 last:border-b-0 last:pb-0 sm:grid-cols-[52px_minmax(0,1fr)_auto_auto]"
                         >
                           <img
                             src={getRecipeImage(recipe)}
@@ -600,13 +600,13 @@ const AdminDashboard = () => {
                             </p>
                           </div>
                           <span
-                            className={`rounded-[8px] px-3 py-1 text-xs font-black capitalize ${
+                            className={`col-start-2 w-fit rounded-[8px] px-3 py-1 text-xs font-black capitalize sm:col-start-auto ${
                               statusStyles[recipe.status] || statusStyles.pending
                             }`}
                           >
                             {recipe.status || "pending"}
                           </span>
-                          <AdminIcon name="more" className="h-5 w-5 text-[#667085]" />
+                          <AdminIcon name="more" className="hidden h-5 w-5 text-[#667085] sm:block" />
                         </div>
                       ))
                     )}

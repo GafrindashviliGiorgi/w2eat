@@ -58,9 +58,9 @@ const RegisterForm = () => {
   return (
     <div className="min-h-[calc(100vh-68px)] overflow-hidden bg-[#fffaf4] px-4 py-4 text-[#071739] sm:px-6 lg:px-10">
       <main className="mx-auto grid min-h-[calc(100vh-100px)] w-full max-w-6xl items-center gap-6 lg:grid-cols-[1.02fr_0.98fr]">
-        <section className="relative min-h-[420px] lg:min-h-[560px]">
+        <section className="relative py-5 sm:py-8 lg:min-h-[560px] lg:py-0">
           <div className="relative z-10 max-w-lg pt-1 sm:pt-5 lg:pt-8">
-            <h1 className="max-w-[500px] text-4xl font-bold leading-tight text-[#071739] sm:text-[44px] lg:text-[52px]">
+            <h1 className="max-w-[500px] text-[34px] font-bold leading-tight text-[#071739] sm:text-[44px] lg:text-[52px]">
               <span className="text-[#ed3317]">
                 {t("Start your better eating")}
                 <img

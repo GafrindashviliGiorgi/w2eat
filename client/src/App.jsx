@@ -21,7 +21,7 @@ const AppRoutes = () => {
   return (
     <main
       key={location.pathname}
-      className="route-transition min-h-[calc(100vh-88px)]"
+      className="route-transition min-h-[calc(100vh-88px)] w-full min-w-0"
     >
       <Routes location={location}>
         <Route path="/" element={<Home />} />

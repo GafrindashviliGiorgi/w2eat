@@ -283,10 +283,10 @@ const AddRecipeForm = () => {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-[#fffaf5] px-6 pb-12 pt-8 text-[#071739] sm:px-8 lg:px-10">
-      <div className="relative z-10 mx-auto max-w-[1360px]">
+    <div className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-[#fffaf5] px-4 pb-12 pt-7 text-[#071739] sm:px-6 sm:pt-8 lg:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-[1360px]">
         <div className="mb-7 max-w-[720px]">
-          <h2 className="text-[40px] font-extrabold leading-tight text-[#071739] sm:text-[44px]">
+          <h2 className="text-[34px] font-extrabold leading-tight text-[#071739] sm:text-[44px]">
             {t("Add New Recipe")}
           </h2>
           <p className="mt-2 text-base font-semibold text-[#4a5568] sm:text-lg">
@@ -300,7 +300,7 @@ const AddRecipeForm = () => {
           onSubmit={handleSubmit}
           className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.84fr)_286px]"
         >
-          <section className={`${panelClass} p-6`}>
+          <section className={`${panelClass} p-4 sm:p-6`}>
             <SectionTitle icon={addRecipeIcon1} title={t("Basic Information")} />
 
             <div className="space-y-5">
@@ -440,7 +440,7 @@ const AddRecipeForm = () => {
             </div>
           </section>
 
-          <section className={`${panelClass} p-6`}>
+          <section className={`${panelClass} p-4 sm:p-6`}>
             <SectionTitle icon={addRecipeIcon2} title={t("Ingredients")} />
 
             <div className="space-y-3">

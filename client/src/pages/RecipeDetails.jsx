@@ -401,8 +401,8 @@ const RecipeDetails = () => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-72px)] bg-[#fffaf5] px-5 py-8 text-[#071739] sm:px-8 lg:px-10">
-      <main className="mx-auto max-w-[1360px] rounded-[8px] border border-[#efe7dd] bg-white px-5 py-6 shadow-[0_18px_46px_rgba(7,23,57,0.08)] sm:px-8 lg:px-10">
+    <div className="min-h-[calc(100vh-72px)] bg-[#fffaf5] px-4 py-6 text-[#071739] sm:px-6 sm:py-8 lg:px-10">
+      <main className="mx-auto w-full max-w-[1360px] rounded-[8px] border border-[#efe7dd] bg-white px-4 py-5 shadow-[0_18px_46px_rgba(7,23,57,0.08)] sm:px-8 sm:py-6 lg:px-10">
         <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
           <Link
             to="/recipes"
@@ -502,7 +502,7 @@ const RecipeDetails = () => {
           </div>
 
           <div className="flex flex-col justify-center">
-            <h1 className="max-w-[620px] text-[38px] font-extrabold leading-tight text-[#071739] sm:text-[46px]">
+            <h1 className="max-w-[620px] break-words text-[32px] font-extrabold leading-tight text-[#071739] sm:text-[46px]">
               {recipe.title}
             </h1>
 
@@ -579,13 +579,13 @@ const RecipeDetails = () => {
                 ingredients.map((ingredient, index) => (
                   <div
                     key={`${ingredient.name}-${index}`}
-                    className="grid grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-4 py-4"
+                    className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-3 py-4 sm:grid-cols-[32px_minmax(0,1fr)_auto] sm:gap-4"
                   >
                     <LeafIcon className="h-5 w-5 text-[#2e9f38]" />
                     <p className="min-w-0 text-base font-extrabold text-[#071739]">
                       {ingredient.name}
                     </p>
-                    <p className="text-base font-semibold text-[#526078]">
+                    <p className="col-start-2 text-base font-semibold text-[#526078] sm:col-start-auto">
                       {ingredient.quantity || "-"}
                     </p>
                   </div>

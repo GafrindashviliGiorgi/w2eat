@@ -112,7 +112,7 @@ const Home = () => {
 
   return (
     <div className="h-auto min-h-[calc(100vh-88px)] bg-[#fffaf5] text-[#071739]">
-      <section className="relative mx-auto grid w-full max-w-[1360px] gap-8 px-6 pb-6 pt-9 sm:px-8 lg:min-h-[490px] lg:grid-cols-[610px_minmax(0,1fr)] lg:px-8 lg:pb-0 lg:pt-11 xl:px-10">
+      <section className="relative mx-auto grid w-full max-w-[1360px] gap-8 px-4 pb-6 pt-7 sm:px-6 sm:pt-9 lg:min-h-[490px] lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)] lg:px-8 lg:pb-0 lg:pt-11 xl:px-10">
         <div className="relative z-10 flex flex-col justify-center">
           <div className="mb-4 inline-flex h-9 w-fit items-center gap-2.5 rounded-full bg-[#eff8df] px-4 text-sm font-extrabold uppercase text-[#4f8b16] shadow-[0_4px_12px_rgba(79,139,22,0.10)]">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full">
@@ -121,7 +121,7 @@ const Home = () => {
             {t("Eat smart, live better")}
           </div>
 
-          <h1 className="max-w-[620px] text-[44px] font-extrabold leading-[1.05] text-[#071739] sm:text-[56px] lg:text-[62px] lg:leading-[1.02]">
+          <h1 className="max-w-[620px] text-[38px] font-extrabold leading-[1.08] text-[#071739] sm:text-[50px] lg:text-[62px] lg:leading-[1.02]">
             {t("Find what to eat from what you already have.")}
           </h1>
 
@@ -169,16 +169,16 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="relative min-h-[340px] lg:absolute lg:right-[-34px] lg:top-[-6px] lg:min-h-[500px] lg:w-[740px]">
+        <div className="relative min-h-[220px] sm:min-h-[340px] lg:absolute lg:right-[-34px] lg:top-[-6px] lg:min-h-[500px] lg:w-[740px]">
           <img
             src={homePageDetail}
             alt=""
-            className="pointer-events-none absolute left-1/2 top-1/2 w-[620px] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_24px_40px_rgba(7,23,57,0.12)] sm:w-[700px] lg:w-[760px]"
+            className="pointer-events-none absolute left-1/2 top-1/2 w-full max-w-[700px] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_24px_40px_rgba(7,23,57,0.12)] lg:w-[760px] lg:max-w-none"
           />
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-[1280px] px-6 pt-7 sm:px-8 lg:px-8">
+      <section className="relative z-10 mx-auto w-full max-w-[1280px] px-4 pt-7 sm:px-6 lg:px-8">
         <div className="grid overflow-hidden rounded-xl border border-[#efe7dd] bg-white shadow-[0_16px_40px_rgba(7,23,57,0.10)] md:grid-cols-2 xl:min-h-[82px] xl:grid-cols-4">
           {benefitItems.map((item, index) => (
             <div
@@ -210,7 +210,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1280px] px-6 pb-16 pt-5 sm:px-8 lg:px-8">
+      <section className="mx-auto w-full max-w-[1280px] px-4 pb-16 pt-5 sm:px-6 lg:px-8">
         <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="relative text-3xl font-extrabold leading-tight text-[#071739] sm:text-[34px]">
             {t("Your Favorite Recipes")}
@@ -234,7 +234,7 @@ const Home = () => {
         {favorites.length > 0 ? (
           <div className="relative">
             {filteredFavorites.length > 0 ? (
-              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {filteredFavorites.map((recipe) => {
                   const tags = getRecipeTags(recipe);
                   const marker = getRecipeMarker(recipe, tags, t);
